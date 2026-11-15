@@ -3,77 +3,144 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
 <title>Реестр входящих заявок</title>
 <style>
-:root{--bg:#f4f6f9;--card:#fff;--ink:#1c2430;--mute:#677386;--line:#e1e6ed;--acc:#1f5eff;--ok:#1a8f4c;--warn:#b36b00;--bad:#c93a3a;--warnbg:#fff6e0;--badbg:#fdeaea}
-@media (prefers-color-scheme:dark){:root{--bg:#13171d;--card:#1b212b;--ink:#e8ecf3;--mute:#93a0b4;--line:#2c3544;--acc:#6b95ff;--ok:#4cc582;--warn:#e5a93d;--bad:#ef6b6b;--warnbg:#3a2f12;--badbg:#3d1f1f}}
+:root{color-scheme:light dark;--bg:#f4f6f9;--card:#fff;--ink:#1c2430;--mute:#677386;--line:#e1e6ed;--acc:#1f5eff;--ok:#1a8f4c;--warn:#b36b00;--bad:#c93a3a;--warnbg:#fff6d6;--badbg:#fde6e6;--pendbg:#eef3ff}
+@media (prefers-color-scheme:dark){:root{--bg:#13171d;--card:#1b212b;--ink:#e8ecf3;--mute:#93a0b4;--line:#2c3544;--acc:#6b95ff;--ok:#4cc582;--warn:#e5a93d;--bad:#ef6b6b;--warnbg:#3a2f12;--badbg:#3d1f1f;--pendbg:#1f2a44}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 input,select,textarea,button{font:inherit;color:var(--ink)}
-input,select,textarea{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 9px}
+input,select,textarea{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 9px;max-width:100%}
 button{cursor:pointer}
+a{color:var(--acc)}
 .btn{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:8px 14px}
 .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:var(--bad)}
 .btn:disabled{opacity:.6;cursor:default}
+.link{background:none;border:0;color:var(--acc);padding:0;text-decoration:underline}
 .hidden{display:none!important}
 
-#login{max-width:340px;margin:12vh auto;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px;display:grid;gap:12px}
-#login h1{font-size:18px;margin:0 0 4px}
-#login label{display:grid;gap:4px;font-size:12px;color:var(--mute)}
-.msg{color:var(--bad);font-size:13px;min-height:18px}
+.center{max-width:380px;margin:10vh auto;padding:0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px;display:grid;gap:12px}
+.card h1,.card h2{font-size:18px;margin:0}
+.card label,.dlg label{display:grid;gap:4px;font-size:12px;color:var(--mute)}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{background:transparent;border:0;padding:8px}
+.seg button.on{background:var(--acc);color:#fff}
+.msg{font-size:13px;min-height:18px;white-space:pre-line}
+.msg.err{color:var(--bad)}.msg.ok{color:var(--ok)}.msg.info{color:var(--mute)}
+.setup{max-width:600px;margin:10vh auto;padding:0 16px}
 
 header{padding:16px 20px 6px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 h1.t{font-size:19px;margin:0}
 .who{font-size:12px;color:var(--mute);margin-top:2px}
 .hbtn{display:flex;gap:8px;flex-wrap:wrap}
-.wrap{padding:0 20px 28px}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 10px}
+.tabs{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--line)}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:8px 12px;color:var(--mute)}
+.tabs button.on{border-color:var(--acc);color:var(--ink)}
+.tabs .badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:999px;background:var(--bad);color:#fff;font-size:11px;text-align:center}
+.wrap{padding:12px 20px 28px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
 .chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px}
 .chip b{margin-left:6px}
 .chip.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center}
 .filters input[type=search]{flex:1;min-width:200px}
-.filters label.ck{display:flex;gap:6px;align-items:center;color:var(--mute)}
-.box{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:auto}
-table{border-collapse:collapse;width:100%;min-width:1100px}
+.ck{display:flex;gap:6px;align-items:center;color:var(--mute)}
+.box{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:calc(100vh - 230px)}
+table{border-collapse:collapse;width:100%}
+#reqTable{min-width:1150px}
+#usrTable{min-width:760px}
 th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 th{position:sticky;top:0;background:var(--card);font-size:12px;color:var(--mute);white-space:nowrap;z-index:1}
 tr:last-child td{border-bottom:0}
 tr.amber td{background:var(--warnbg)}
 tr.red td{background:var(--badbg)}
+tr.pend td{background:var(--pendbg)}
 td.pre{white-space:pre-wrap;min-width:160px}
 td.nw{white-space:nowrap}
 .tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;border:1px solid var(--line)}
 .st{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;border:1px solid currentColor;white-space:nowrap}
-.s-new{color:var(--mute)}.s-work{color:var(--acc)}.s-info{color:var(--warn)}.s-appr{color:var(--warn)}.s-done{color:var(--ok)}.s-rej{color:var(--bad)}
-.act button{background:none;border:0;color:var(--mute);padding:2px 6px}
-.act button:hover{color:var(--bad)}
+.s-new{color:var(--mute)}.s-work{color:var(--acc)}.s-info,.s-appr{color:var(--warn)}.s-done{color:var(--ok)}.s-rej{color:var(--bad)}
+.act button{background:none;border:1px solid var(--line);border-radius:6px;color:var(--ink);padding:2px 8px;margin:0 4px 4px 0;font-size:12px}
+.act button.del:hover{color:var(--bad);border-color:var(--bad)}
 .empty{padding:34px;text-align:center;color:var(--mute)}
 .note{font-size:12px;color:var(--mute);margin-top:8px}
+.stat{margin:0 0 12px;font-size:13px}
+.stat b{color:var(--bad)}
+td input.nm{width:100%;min-width:200px}
 dialog{border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);padding:0;width:min(560px,94vw)}
+dialog.sm{width:min(400px,94vw)}
 dialog::backdrop{background:#0006}
 .dlg{padding:18px;display:grid;gap:10px}
-.dlg label{display:grid;gap:4px;font-size:12px;color:var(--mute)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.foot{display:flex;gap:8px;justify-content:flex-end}
-@media (max-width:560px){.row2{grid-template-columns:1fr}}
+.foot{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+@media (max-width:600px){.row2{grid-template-columns:1fr}header,.wrap{padding-left:12px;padding-right:12px}.tabs{padding:0 12px}}
 </style>
 </head>
 <body>
 
-<div id="setup" class="hidden" style="max-width:560px;margin:10vh auto;padding:20px">
-  <h2>Нужна настройка</h2>
-  <p>Откройте <code>index.html</code> и впишите <code>SUPABASE_URL</code> и <code>SUPABASE_ANON_KEY</code> в начале скрипта. Шаги описаны в README.md.</p>
+<!-- Ошибки настройки -->
+<div id="setupKeys" class="setup hidden">
+  <h2>Не заданы ключи Supabase</h2>
+  <p>Откройте <code>index.html</code> и впишите <code>SUPABASE_URL</code> и <code>SUPABASE_KEY</code> (Publishable key) в начале скрипта. Шаги описаны в README.md.</p>
+</div>
+<div id="setupLib" class="setup hidden">
+  <h2>Не загрузилась библиотека Supabase</h2>
+  <p>Файл <code>supabase.js</code> не найден или заблокирован. Убедитесь, что он загружен в репозиторий рядом с <code>index.html</code>, подождите 1–2 минуты и обновите страницу (Ctrl+F5).</p>
 </div>
 
-<form id="login" class="hidden">
-  <h1>Реестр входящих заявок</h1>
-  <label>Логин или e-mail<input id="lLogin" autocomplete="username" autocapitalize="none" required></label>
-  <label>Пароль<input id="lPass" type="password" autocomplete="current-password" required></label>
-  <div class="msg" id="lMsg"></div>
-  <button class="btn" id="lBtn">Войти</button>
-</form>
+<!-- Вход / регистрация / восстановление -->
+<div id="auth" class="center hidden">
+  <div class="card">
+    <h1>Реестр входящих заявок</h1>
+    <div class="seg" id="authSeg">
+      <button type="button" data-mode="login" class="on">Войти</button>
+      <button type="button" data-mode="reg">Зарегистрироваться</button>
+    </div>
 
+    <form id="loginForm" class="card" style="padding:0;border:0">
+      <label>E-mail<input id="lEmail" type="email" autocomplete="username" autocapitalize="none" required></label>
+      <label>Пароль<input id="lPass" type="password" autocomplete="current-password" required></label>
+      <button class="btn" id="lBtn">Войти</button>
+      <div><button type="button" class="link" id="forgotLink">Забыли пароль?</button></div>
+    </form>
+
+    <form id="regForm" class="card hidden" style="padding:0;border:0">
+      <label>ФИО<input id="rName" autocomplete="name" required maxlength="200"></label>
+      <label>E-mail (рабочий, @<span class="dom"></span>)<input id="rEmail" type="email" autocomplete="username" autocapitalize="none" required></label>
+      <label>Пароль (не короче 8 символов)<input id="rPass" type="password" autocomplete="new-password" minlength="8" required></label>
+      <label>Повторите пароль<input id="rPass2" type="password" autocomplete="new-password" minlength="8" required></label>
+      <button class="btn" id="rBtn">Зарегистрироваться</button>
+    </form>
+
+    <form id="forgotForm" class="card hidden" style="padding:0;border:0">
+      <div class="msg info">Укажите e-mail, мы отправим ссылку для задания нового пароля.</div>
+      <label>E-mail<input id="fEmail" type="email" autocomplete="username" autocapitalize="none" required></label>
+      <button class="btn" id="fBtn">Отправить ссылку</button>
+      <div><button type="button" class="link" id="backLink">← Вернуться ко входу</button></div>
+    </form>
+
+    <div class="msg" id="aMsg"></div>
+  </div>
+</div>
+
+<!-- Ожидание одобрения -->
+<div id="pending" class="center hidden">
+  <div class="card">
+    <h2>Ожидайте подтверждения администратором</h2>
+    <div id="pendWho" class="msg info"></div>
+    <p style="margin:0">Вы зарегистрированы. Доступ к заявкам появится после того, как администратор назначит вам роль. Затем обновите страницу.</p>
+    <div class="foot" style="justify-content:flex-start">
+      <button class="btn" id="pendRef">Обновить</button>
+      <button class="btn ghost" data-pwd>Сменить пароль</button>
+      <button class="btn ghost" data-out>Выйти</button>
+    </div>
+  </div>
+</div>
+
+<!-- Приложение -->
 <div id="app" class="hidden">
   <header>
     <div>
@@ -84,20 +151,26 @@ dialog::backdrop{background:#0006}
       <button class="btn ghost hidden" id="csvBtn">Выгрузить CSV</button>
       <button class="btn ghost" id="refBtn">Обновить</button>
       <button class="btn" id="addBtn">+ Новая заявка</button>
-      <button class="btn ghost" id="outBtn">Выйти</button>
+      <button class="btn ghost" data-pwd>Сменить пароль</button>
+      <button class="btn ghost" data-out>Выйти</button>
     </div>
   </header>
-  <div class="wrap">
+  <nav class="tabs" id="tabs">
+    <button type="button" data-tab="req" class="on">Заявки</button>
+    <button type="button" data-tab="adm" class="hidden" id="admTabBtn">Администрирование<span class="badge hidden" id="admBadge"></span></button>
+  </nav>
+
+  <section class="wrap" id="tabReq">
     <div class="chips" id="chips"></div>
     <div class="filters">
       <input type="search" id="q" placeholder="Поиск: № письма, поставщик, суть, товары…">
       <select id="fType"><option value="">Все типы</option><option value="pool">В пул</option><option value="project">На проект</option></select>
       <select id="fWho" class="hidden"><option value="">Все исполнители</option></select>
-      <label class="ck"><input type="checkbox" id="fLate"> Просроченные</label>
+      <label class="ck" title="Не исполненные и не отклонённые заявки с истёкшим рекомендуемым или крайним сроком"><input type="checkbox" id="fLate"> Просроченные</label>
       <button class="btn ghost" id="fReset">Сбросить</button>
     </div>
     <div class="box">
-      <table>
+      <table id="reqTable">
         <thead><tr>
           <th>№ письма</th><th>Поступила</th><th>Рек. срок</th><th>Крайний срок</th><th>Тип</th>
           <th>Поставщик</th><th>Краткая суть</th><th>Товары</th><th>Исполнитель</th><th>Статус</th><th></th>
@@ -107,177 +180,372 @@ dialog::backdrop{background:#0006}
       <div class="empty hidden" id="empty">Заявок нет</div>
     </div>
     <div class="note" id="note"></div>
-    <div class="msg" id="appMsg"></div>
-  </div>
+    <div class="msg err" id="appMsg"></div>
+  </section>
+
+  <section class="wrap hidden" id="tabAdm">
+    <div class="stat" id="admStat"></div>
+    <div class="box">
+      <table id="usrTable">
+        <thead><tr><th>ФИО</th><th>E-mail</th><th>Роль</th><th>Зарегистрирован</th><th></th></tr></thead>
+        <tbody id="ubody"></tbody>
+      </table>
+    </div>
+    <div class="note">Пользователи, ожидающие подтверждения, выделены и показаны первыми. Чтобы закрыть доступ сотруднику, назначьте ему роль «Ожидает подтверждения».</div>
+    <div class="msg" id="admMsg"></div>
+  </section>
 </div>
 
-<dialog id="dlg"><form class="dlg" id="form" method="dialog">
+<!-- Окно заявки -->
+<dialog id="dlg"><form class="dlg" id="form">
   <b id="dlgTitle">Новая заявка</b>
   <div class="row2">
-    <label>№ входящего письма<input id="fNo" required></label>
-    <label>Дата поступления<input type="date" id="fDate" required></label>
+    <label>№ входящего письма<input id="eNo" required maxlength="100"></label>
+    <label>Дата поступления<input type="date" id="eDate" required></label>
   </div>
   <div class="row2">
-    <label>Тип заявки<select id="fKind"><option value="pool">В пул</option><option value="project">На проект</option></select></label>
-    <label>Статус<select id="fStat"></select></label>
+    <label>Тип заявки<select id="eKind"><option value="pool">В пул</option><option value="project">На проект</option></select></label>
+    <label>Статус<select id="eStat"></select></label>
   </div>
-  <label>Наименование поставщика<input id="fSup" required></label>
-  <label>Краткая суть<textarea id="fSum" rows="3" required></textarea></label>
-  <label>Наименование товара(ов)<textarea id="fGoods" rows="2"></textarea></label>
-  <div class="msg" id="dMsg">Рекомендуемый срок (+5 раб. дней) и крайний срок (+15 раб. дней) рассчитаются автоматически после сохранения.</div>
+  <label>Наименование поставщика<input id="eSup" required maxlength="500"></label>
+  <label>Краткая суть<textarea id="eSum" rows="3" required></textarea></label>
+  <label>Наименование товара(ов)<textarea id="eGoods" rows="2"></textarea></label>
+  <div class="msg info" id="dMsg"></div>
   <div class="foot"><button type="button" class="btn ghost" id="dCancel">Отмена</button><button class="btn" id="dSave">Сохранить</button></div>
 </form></dialog>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Подтверждение удаления -->
+<dialog id="delDlg" class="sm"><div class="dlg">
+  <b>Удалить заявку?</b>
+  <div id="delText"></div>
+  <div class="msg err" id="delMsg"></div>
+  <div class="foot"><button type="button" class="btn ghost" id="delNo">Отмена</button><button type="button" class="btn danger" id="delYes">Удалить</button></div>
+</div></dialog>
+
+<!-- Смена пароля -->
+<dialog id="pwdDlg" class="sm"><form class="dlg" id="pwdForm">
+  <b id="pwdTitle">Сменить пароль</b>
+  <label>Новый пароль (не короче 8 символов)<input id="pNew" type="password" autocomplete="new-password" minlength="8" required></label>
+  <label>Повторите пароль<input id="pNew2" type="password" autocomplete="new-password" minlength="8" required></label>
+  <div class="msg" id="pMsg"></div>
+  <div class="foot"><button type="button" class="btn ghost" id="pCancel">Закрыть</button><button class="btn" id="pSave">Сохранить</button></div>
+</form></dialog>
+
+<script src="supabase.js"></script>
 <script>
 /* ===== НАСТРОЙКА ===== */
 const SUPABASE_URL = "https://cyoaplfokzqcqhigmrcq.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_te3CMWG55CGQj7n0f9op3g_VQYfNJEB"; // публичный (publishable) ключ
-const LOGIN_DOMAIN = "reestr.local"; // служебный домен для логинов
+const SUPABASE_KEY = "sb_publishable_te3CMWG55CGQj7n0f9op3g_VQYfNJEB"; // публичный Publishable key (НЕ secret!)
+const EMAIL_DOMAIN = "ot.kz";   // подсказка в интерфейсе; настоящая проверка — в базе (migration.sql)
+const TZ_OFFSET_HOURS = 5;      // «сегодня» считается по UTC+5
 /* ===================== */
 
 const STATUSES=[["new","Новая"],["work","В работе"],["info","Запрошены доп. данные"],["appr","На согласовании"],["done","Исполнена"],["rej","Отклонена"]];
 const SN=Object.fromEntries(STATUSES);
 const TN={pool:"В пул",project:"На проект"};
+const ROLES=[["pending","Ожидает подтверждения"],["executor","Исполнитель"],["manager","Руководитель"],["admin","Администратор"]];
+const RN=Object.fromEntries(ROLES);
 const CLOSED=["done","rej"];
+const MIN_PASS=8;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const pad=n=>String(n).padStart(2,"0");
-const ymd=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
-const fmt=d=>{if(!d)return"";const p=d.split("-");return p[2]+"."+p[1]+"."+p[0]};
+/* дата «сегодня + days» в UTC+5 в виде ГГГГ-ММ-ДД (без toISOString) */
+function kzDay(days){const d=new Date(Date.now()+TZ_OFFSET_HOURS*3600e3+(days||0)*864e5);return d.getUTCFullYear()+"-"+pad(d.getUTCMonth()+1)+"-"+pad(d.getUTCDate())}
+const fmt=d=>{if(!d)return"";const p=String(d).slice(0,10).split("-");return p[2]+"."+p[1]+"."+p[0]};
+const show=(id,on)=>$(id).classList.toggle("hidden",!on);
+function msg(id,text,kind){const m=$(id);m.textContent=text||"";m.className="msg "+(kind||"err")}
+const SITE_URL=location.origin+location.pathname;
 
-STATUSES.forEach(([k,v])=>$("fStat").add(new Option(v,k)));
+document.querySelectorAll(".dom").forEach(e=>e.textContent=EMAIL_DOMAIN);
+STATUSES.forEach(([k,v])=>$("eStat").add(new Option(v,k)));
 
-let sb=null,me=null,profile=null,isMgr=false,rows=[],names={},filterSt="",editing=null,timer=null;
+let sb=null,user=null,profile=null,rows=[],names={},filterSt="",editing=null,timer=null,tab="req",recovery=false,entering=null;
 
+/* ---------- запуск ---------- */
 function init(){
-  if(!SUPABASE_URL||!SUPABASE_ANON_KEY||!window.supabase){$("setup").classList.remove("hidden");return}
-  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-  sb.auth.getSession().then(({data})=>{data.session?start(data.session.user):showLogin()});
-  sb.auth.onAuthStateChange((ev,s)=>{if(ev==="SIGNED_OUT")showLogin()});
+  if(!SUPABASE_URL||!SUPABASE_KEY||/xxxx|ваш/i.test(SUPABASE_URL+SUPABASE_KEY)){show("setupKeys",true);return}
+  if(!window.supabase||typeof window.supabase.createClient!=="function"){show("setupLib",true);return}
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  sb.auth.onAuthStateChange((ev,session)=>{
+    // вызовы Supabase из обработчика — через setTimeout (рекомендация библиотеки)
+    setTimeout(()=>{
+      if(ev==="PASSWORD_RECOVERY"){recovery=true;openPwd(true);return}
+      if(ev==="SIGNED_OUT"||!session){user=null;profile=null;showAuth();return}
+      if(ev==="INITIAL_SESSION"||ev==="SIGNED_IN"){if(!user||user.id!==session.user.id)enter(session.user)}
+    },0);
+  });
 }
-function showLogin(){
-  clearInterval(timer);$("app").classList.add("hidden");$("login").classList.remove("hidden");
-  $("lPass").value="";
+
+function hideAll(){["auth","pending","app","setupKeys","setupLib"].forEach(id=>show(id,false));clearInterval(timer)}
+function showAuth(){
+  hideAll();show("auth",true);$("lPass").value="";setMode("login");
 }
-$("login").onsubmit=async e=>{
-  e.preventDefault();$("lMsg").textContent="";$("lBtn").disabled=true;
-  const login=$("lLogin").value.trim().toLowerCase();
-  const {data,error}=await sb.auth.signInWithPassword({email:login.includes("@")?login:login+"@"+LOGIN_DOMAIN,password:$("lPass").value});
+function setMode(m){
+  show("loginForm",m==="login");show("regForm",m==="reg");show("forgotForm",m==="forgot");
+  document.querySelectorAll("#authSeg button").forEach(b=>b.classList.toggle("on",b.dataset.mode===m));
+  msg("aMsg","");
+}
+document.querySelectorAll("#authSeg button").forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+$("forgotLink").onclick=()=>{$("fEmail").value=$("lEmail").value;setMode("forgot")};
+$("backLink").onclick=()=>setMode("login");
+
+function authErr(e){
+  const m=(e&&e.message)||String(e);
+  if(/invalid login credentials/i.test(m))return"Неверный e-mail или пароль.";
+  if(/email not confirmed/i.test(m))return"Адрес e-mail не подтверждён. Откройте письмо со ссылкой подтверждения.";
+  if(/database error saving new user|только для адресов/i.test(m))return"Регистрация разрешена только для рабочих адресов @"+EMAIL_DOMAIN+".";
+  if(/already registered|already been registered|user_already_exists/i.test(m))return"Этот e-mail уже зарегистрирован. Войдите или воспользуйтесь «Забыли пароль?».";
+  if(/rate limit|too many|over_email_send_rate_limit|security purposes/i.test(m))return"Слишком много попыток или писем. Подождите и попробуйте позже.";
+  if(/same.*password|different from the old/i.test(m))return"Новый пароль должен отличаться от текущего.";
+  if(/password/i.test(m)&&/(at least|weak|short|characters)/i.test(m))return"Пароль слишком простой или короткий.";
+  if(/failed to fetch|network/i.test(m))return"Нет связи с сервером. Проверьте интернет; если проект Supabase приостановлен, обратитесь к администратору.";
+  if(/signups? not allowed|signup.*disabled/i.test(m))return"Регистрация отключена в настройках Supabase. Обратитесь к администратору.";
+  return"Ошибка: "+m;
+}
+
+/* ---------- вход ---------- */
+$("loginForm").onsubmit=async e=>{
+  e.preventDefault();msg("aMsg","");$("lBtn").disabled=true;
+  const {error}=await sb.auth.signInWithPassword({email:$("lEmail").value.trim().toLowerCase(),password:$("lPass").value});
   $("lBtn").disabled=false;
-  if(error){$("lMsg").textContent="Неверный логин или пароль";return}
-  start(data.user);
+  if(error)msg("aMsg",authErr(error));
 };
-$("outBtn").onclick=()=>sb.auth.signOut();
 
-async function start(u){
-  me=u.id;
-  const {data:profs,error}=await sb.from("profiles").select("id,login,full_name,role");
-  profile=(profs||[]).find(p=>p.id===me);
-  if(error||!profile){
-    $("login").classList.remove("hidden");$("lMsg").textContent="Для вашей учётной записи не создан профиль. Обратитесь к администратору.";
-    await sb.auth.signOut();return}
-  (profs||[]).forEach(p=>names[p.id]=p.full_name);
-  isMgr=profile.role==="manager";
-  $("login").classList.add("hidden");$("app").classList.remove("hidden");
-  $("who").textContent=profile.full_name+" · "+(isMgr?"руководитель: видны все заявки, только просмотр":"исполнитель: видны и редактируются ваши заявки");
-  $("csvBtn").classList.toggle("hidden",!isMgr);
-  $("fWho").classList.toggle("hidden",!isMgr);
-  if(isMgr){const s=$("fWho");(profs||[]).slice().sort((a,b)=>a.full_name.localeCompare(b.full_name,"ru")).forEach(p=>s.add(new Option(p.full_name,p.id)))}
-  await load();
-  clearInterval(timer);timer=setInterval(()=>{if(!document.hidden&&!$("dlg").open)load()},60000);
+/* ---------- регистрация ---------- */
+$("regForm").onsubmit=async e=>{
+  e.preventDefault();msg("aMsg","");
+  const name=$("rName").value.trim(),email=$("rEmail").value.trim().toLowerCase(),p1=$("rPass").value,p2=$("rPass2").value;
+  if(!name){msg("aMsg","Укажите ФИО.");return}
+  if(email.split("@")[1]!==EMAIL_DOMAIN){msg("aMsg","Регистрация разрешена только для рабочих адресов @"+EMAIL_DOMAIN+".");return}
+  if(p1.length<MIN_PASS){msg("aMsg","Пароль должен быть не короче "+MIN_PASS+" символов.");return}
+  if(p1!==p2){msg("aMsg","Пароли не совпадают.");return}
+  $("rBtn").disabled=true;
+  const {data,error}=await sb.auth.signUp({email,password:p1,options:{data:{full_name:name},emailRedirectTo:SITE_URL}});
+  $("rBtn").disabled=false;
+  if(error){msg("aMsg",authErr(error));return}
+  if(!data.session){
+    // включено подтверждение e-mail: сессии пока нет
+    $("lEmail").value=email;setMode("login");
+    msg("aMsg","Регистрация принята. Откройте письмо, подтвердите адрес и затем войдите.","ok");
+  }
+  // если подтверждение выключено, сработает SIGNED_IN и откроется экран ожидания
+};
+
+/* ---------- забыли пароль ---------- */
+$("forgotForm").onsubmit=async e=>{
+  e.preventDefault();msg("aMsg","");$("fBtn").disabled=true;
+  const {error}=await sb.auth.resetPasswordForEmail($("fEmail").value.trim().toLowerCase(),{redirectTo:SITE_URL});
+  $("fBtn").disabled=false;
+  if(error){msg("aMsg",authErr(error));return}
+  msg("aMsg","Если адрес зарегистрирован, на него отправлено письмо со ссылкой. Откройте ссылку и задайте новый пароль.\nПисьмо не пришло? Проверьте «Спам» или обратитесь к администратору.","ok");
+};
+
+/* ---------- выход и смена пароля ---------- */
+document.querySelectorAll("[data-out]").forEach(b=>b.onclick=()=>sb.auth.signOut());
+document.querySelectorAll("[data-pwd]").forEach(b=>b.onclick=()=>openPwd(false));
+function openPwd(isRecovery){
+  $("pwdTitle").textContent=isRecovery?"Задайте новый пароль":"Сменить пароль";
+  $("pNew").value="";$("pNew2").value="";msg("pMsg","");$("pSave").disabled=false;
+  if(!$("pwdDlg").open)$("pwdDlg").showModal();
 }
+$("pCancel").onclick=()=>$("pwdDlg").close();
+$("pwdDlg").addEventListener("close",()=>{if(recovery){recovery=false;history.replaceState(null,"",SITE_URL)}});
+$("pwdForm").onsubmit=async e=>{
+  e.preventDefault();
+  const p1=$("pNew").value,p2=$("pNew2").value;
+  if(p1.length<MIN_PASS){msg("pMsg","Пароль должен быть не короче "+MIN_PASS+" символов.");return}
+  if(p1!==p2){msg("pMsg","Пароли не совпадают.");return}
+  $("pSave").disabled=true;
+  const {error}=await sb.auth.updateUser({password:p1});
+  $("pSave").disabled=false;
+  if(error){msg("pMsg",authErr(error));return}
+  $("pNew").value="";$("pNew2").value="";
+  msg("pMsg","Пароль изменён. В следующий раз входите с новым паролем.","ok");
+};
 
+/* ---------- после входа ---------- */
+async function enter(u){
+  if(entering===u.id)return;entering=u.id;
+  try{
+    user=u;
+    const {data:p,error}=await sb.from("profiles").select("id,login,full_name,role").eq("id",u.id).maybeSingle();
+    if(error){hideAll();show("auth",true);msg("aMsg","Не удалось загрузить профиль: "+error.message);return}
+    profile=p;
+    if(!p||p.role==="pending"){
+      hideAll();show("pending",true);
+      $("pendWho").textContent=(p?p.full_name+" · ":"")+(u.email||"")+(p?"":"\nПрофиль не найден — сообщите администратору.");
+      return;
+    }
+    const mgr=p.role==="manager"||p.role==="admin",adm=p.role==="admin";
+    names={};names[p.id]=p.full_name;
+    const sel=$("fWho");sel.length=1;
+    if(mgr){
+      const {data:all}=await sb.from("profiles").select("id,full_name");
+      (all||[]).forEach(x=>names[x.id]=x.full_name);
+      (all||[]).slice().sort((a,b)=>a.full_name.localeCompare(b.full_name,"ru")).forEach(x=>sel.add(new Option(x.full_name,x.id)));
+    }
+    hideAll();show("app",true);
+    $("who").textContent=p.full_name+" · "+RN[p.role]+(mgr?" · видны все заявки, чужие — только просмотр":" · видны и редактируются ваши заявки");
+    show("csvBtn",mgr);show("fWho",mgr);show("admTabBtn",adm);
+    if(!adm&&tab==="adm")setTab("req");
+    await load();
+    if(adm)loadUsers();
+    clearInterval(timer);
+    timer=setInterval(()=>{if(!document.hidden&&!document.querySelector("dialog[open]")){if(tab==="req")load();else loadUsers()}},60000);
+  }finally{entering=null}
+}
+$("pendRef").onclick=()=>{if(user){const u=user;user=null;enter(u)}};
+
+function setTab(t){
+  tab=t;document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));
+  show("tabReq",t==="req");show("tabAdm",t==="adm");
+  show("addBtn",t==="req");show("csvBtn",t==="req"&&profile&&(profile.role==="manager"||profile.role==="admin"));
+  if(t==="adm")loadUsers();
+}
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+
+/* ---------- заявки ---------- */
 async function load(){
   const {data,error}=await sb.from("requests").select("*").order("received_date",{ascending:false}).order("created_at",{ascending:false});
-  if(error){$("appMsg").textContent="Не удалось загрузить данные: "+error.message;return}
-  $("appMsg").textContent="";rows=data||[];render();
+  if(error){msg("appMsg","Не удалось загрузить данные: "+error.message);return}
+  msg("appMsg","");rows=data||[];render();
 }
-$("refBtn").onclick=load;
+$("refBtn").onclick=()=>tab==="req"?load():loadUsers();
 
 function rowState(r){
   if(CLOSED.includes(r.status))return"";
-  const t=ymd(new Date());
-  if(r.deadline_date&&r.deadline_date<t)return"red";
-  const tm=new Date();tm.setDate(tm.getDate()+1);
-  if(r.recommended_date&&r.recommended_date<=ymd(tm))return"amber";
+  if(r.deadline_date&&r.deadline_date<kzDay(0))return"red";
+  if(r.recommended_date&&r.recommended_date<=kzDay(1))return"amber";
   return"";
 }
-function visible(){
+function isLate(r){const t=kzDay(0);return!CLOSED.includes(r.status)&&((r.deadline_date&&r.deadline_date<t)||(r.recommended_date&&r.recommended_date<t))}
+function visible(ignoreStatus){
   const q=$("q").value.trim().toLowerCase(),ty=$("fType").value,w=$("fWho").value,late=$("fLate").checked;
-  return rows.filter(r=>(!filterSt||r.status===filterSt)&&(!ty||r.req_type===ty)&&(!w||r.owner_id===w)&&
-    (!late||rowState(r)==="red")&&
-    (!q||[r.incoming_no,r.supplier,r.summary,r.goods].join(" ").toLowerCase().includes(q)));
+  return rows.filter(r=>(ignoreStatus||!filterSt||r.status===filterSt)&&(!ty||r.req_type===ty)&&(!w||r.owner_id===w)&&
+    (!late||isLate(r))&&(!q||[r.incoming_no,r.supplier,r.summary,r.goods].join(" ").toLowerCase().includes(q)));
 }
 function render(){
-  const cnt={};rows.forEach(r=>cnt[r.status]=(cnt[r.status]||0)+1);
-  $("chips").innerHTML='<button class="chip'+(filterSt?"":" on")+'" data-s="">Все<b>'+rows.length+'</b></button>'+
+  const base=visible(true),cnt={};base.forEach(r=>cnt[r.status]=(cnt[r.status]||0)+1);
+  $("chips").innerHTML='<button class="chip'+(filterSt?"":" on")+'" data-s="">Все<b>'+base.length+'</b></button>'+
     STATUSES.map(([k,v])=>'<button class="chip'+(filterSt===k?" on":"")+'" data-s="'+k+'">'+v+'<b>'+(cnt[k]||0)+'</b></button>').join("");
   document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{filterSt=c.dataset.s;render()});
-  const list=visible();
-  $("empty").classList.toggle("hidden",list.length>0);
+  const list=visible(false);
+  show("empty",list.length===0);
+  $("empty").textContent=rows.length?"По выбранным фильтрам заявок нет":"Заявок пока нет";
   $("tbody").innerHTML=list.map(r=>{
-    const own=r.owner_id===me;
-    const st=own?'<select class="stSel" data-id="'+r.id+'">'+STATUSES.map(([k,v])=>'<option value="'+k+'"'+(r.status===k?" selected":"")+'>'+v+'</option>').join("")+'</select>'
+    const own=r.owner_id===user.id;
+    const st=own?'<select class="stSel" data-id="'+esc(r.id)+'" aria-label="Статус">'+STATUSES.map(([k,v])=>'<option value="'+k+'"'+(r.status===k?" selected":"")+'>'+v+'</option>').join("")+'</select>'
       :'<span class="st s-'+esc(r.status)+'">'+esc(SN[r.status])+'</span>';
     return '<tr class="'+rowState(r)+'"><td class="nw"><b>'+esc(r.incoming_no)+'</b></td><td class="nw">'+fmt(r.received_date)+
       '</td><td class="nw">'+fmt(r.recommended_date)+'</td><td class="nw">'+fmt(r.deadline_date)+
       '</td><td><span class="tag">'+esc(TN[r.req_type])+'</span></td><td>'+esc(r.supplier)+
       '</td><td class="pre">'+esc(r.summary)+'</td><td class="pre">'+esc(r.goods)+'</td><td>'+esc(names[r.owner_id]||"—")+
-      '</td><td>'+st+'</td><td class="act nw">'+(own?'<button data-edit="'+r.id+'" title="Изменить">✎</button><button data-del="'+r.id+'" title="Удалить">✕</button>':"")+'</td></tr>';
+      '</td><td>'+st+'</td><td class="act nw">'+(own?'<button data-edit="'+esc(r.id)+'">изменить</button><button class="del" data-del="'+esc(r.id)+'">удалить</button>':"")+'</td></tr>';
   }).join("");
   document.querySelectorAll(".stSel").forEach(s=>s.onchange=()=>setStatus(s.dataset.id,s.value));
   document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openDlg(b.dataset.edit));
-  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>askDel(b.dataset.del,b));
-  $("note").textContent="Показано: "+list.length+" из "+rows.length+". Жёлтым выделены заявки, у которых рекомендуемый срок истёк или истекает завтра, красным — с истёкшим крайним сроком.";
+  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>askDel(b.dataset.del));
+  $("note").textContent="Показано: "+list.length+" из "+rows.length+". Жёлтым выделены заявки, у которых рекомендуемый срок истёк или истекает завтра, красным — с истёкшим крайним сроком (кроме исполненных и отклонённых).";
 }
 ["q","fType","fWho","fLate"].forEach(id=>$(id).addEventListener(id==="q"?"input":"change",render));
 $("fReset").onclick=()=>{$("q").value="";$("fType").value="";$("fWho").value="";$("fLate").checked=false;filterSt="";render()};
 
+function dbErr(error){
+  if(!error)return"";
+  if(error.code==="23505")return"Заявка с таким № входящего письма уже зарегистрирована.";
+  if(error.code==="42501"||/row-level security/i.test(error.message))return"Недостаточно прав для этого действия.";
+  return error.message;
+}
 async function setStatus(id,status){
   const {error}=await sb.from("requests").update({status}).eq("id",id);
-  if(error){$("appMsg").textContent="Не удалось сменить статус: "+error.message}
+  if(error)msg("appMsg","Не удалось сменить статус: "+dbErr(error));
   await load();
 }
-let armed=null;
-function askDel(id,btn){
-  if(armed===id){armed=null;sb.from("requests").delete().eq("id",id).then(({error})=>{if(error)$("appMsg").textContent="Не удалось удалить: "+error.message;load()});return}
-  armed=id;btn.textContent="Удалить?";btn.style.color="var(--bad)";setTimeout(()=>{if(armed===id){armed=null;render()}},3000);
+
+let delId=null;
+function askDel(id){
+  const r=rows.find(x=>x.id===id);if(!r)return;delId=id;
+  $("delText").textContent="№ "+r.incoming_no+" · "+r.supplier+". Удаление нельзя отменить.";
+  msg("delMsg","");$("delYes").disabled=false;$("delDlg").showModal();
 }
+$("delNo").onclick=()=>$("delDlg").close();
+$("delYes").onclick=async()=>{
+  $("delYes").disabled=true;
+  const {data,error}=await sb.from("requests").delete().eq("id",delId).select("id");
+  $("delYes").disabled=false;
+  if(error||!data||!data.length){msg("delMsg","Не удалось удалить: "+(error?dbErr(error):"заявка не найдена или нет прав."));return}
+  $("delDlg").close();await load();
+};
 
 function openDlg(id){
   editing=id||null;const r=id?rows.find(x=>x.id===id):{};
   $("dlgTitle").textContent=id?"Изменить заявку":"Новая заявка";
-  $("fNo").value=r.incoming_no||"";$("fDate").value=r.received_date||ymd(new Date());
-  $("fKind").value=r.req_type||"pool";$("fStat").value=r.status||"new";
-  $("fSup").value=r.supplier||"";$("fSum").value=r.summary||"";$("fGoods").value=r.goods||"";
-  $("dMsg").style.color="var(--mute)";
-  $("dMsg").textContent="Рекомендуемый срок (+5 раб. дней) и крайний срок (+15 раб. дней) рассчитаются автоматически после сохранения.";
-  $("dlg").showModal();
+  $("eNo").value=r.incoming_no||"";$("eDate").value=r.received_date||kzDay(0);
+  $("eKind").value=r.req_type||"pool";$("eStat").value=r.status||"new";
+  $("eSup").value=r.supplier||"";$("eSum").value=r.summary||"";$("eGoods").value=r.goods||"";
+  msg("dMsg","Рекомендуемый срок (+5 рабочих дней) и крайний срок (+15 рабочих дней) рассчитаются автоматически после сохранения.","info");
+  $("dSave").disabled=false;$("dlg").showModal();
 }
 $("addBtn").onclick=()=>openDlg();
 $("dCancel").onclick=()=>$("dlg").close();
 $("form").onsubmit=async e=>{
-  e.preventDefault();$("dSave").disabled=true;
-  const v={incoming_no:$("fNo").value.trim(),received_date:$("fDate").value,req_type:$("fKind").value,status:$("fStat").value,
-    supplier:$("fSup").value.trim(),summary:$("fSum").value.trim(),goods:$("fGoods").value.trim()||null};
-  const q=editing?sb.from("requests").update(v).eq("id",editing):sb.from("requests").insert(v);
-  const {error}=await q;
+  e.preventDefault();
+  const v={incoming_no:$("eNo").value.trim(),received_date:$("eDate").value,req_type:$("eKind").value,status:$("eStat").value,
+    supplier:$("eSup").value.trim(),summary:$("eSum").value.trim(),goods:$("eGoods").value.trim()||null};
+  if(!v.incoming_no||!v.received_date||!v.supplier||!v.summary){msg("dMsg","Заполните обязательные поля.");return}
+  $("dSave").disabled=true;
+  const {error}=editing?await sb.from("requests").update(v).eq("id",editing):await sb.from("requests").insert(v);
   $("dSave").disabled=false;
-  if(error){$("dMsg").style.color="var(--bad)";
-    $("dMsg").textContent=error.code==="23505"?"Заявка с таким № входящего письма уже зарегистрирована.":"Не удалось сохранить: "+error.message;return}
+  if(error){msg("dMsg","Не удалось сохранить: "+dbErr(error));return}
   $("dlg").close();await load();
 };
 
 $("csvBtn").onclick=()=>{
   const cell=x=>'"'+String(x??"").replace(/"/g,'""').replace(/\r?\n/g," ")+'"';
   const head=["№ письма","Поступила","Рек. срок","Крайний срок","Тип","Поставщик","Краткая суть","Товары","Исполнитель","Статус"];
-  const lines=[head.map(cell).join(";")].concat(visible().map(r=>[r.incoming_no,fmt(r.received_date),fmt(r.recommended_date),fmt(r.deadline_date),
+  const lines=[head.map(cell).join(";")].concat(visible(false).map(r=>[r.incoming_no,fmt(r.received_date),fmt(r.recommended_date),fmt(r.deadline_date),
     TN[r.req_type],r.supplier,r.summary,r.goods,names[r.owner_id],SN[r.status]].map(cell).join(";")));
   const blob=new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="zayavki_"+ymd(new Date())+".csv";
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="zayavki_"+kzDay(0)+".csv";
   document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
 };
+
+/* ---------- администрирование ---------- */
+let users=[];
+async function loadUsers(){
+  if(!profile||profile.role!=="admin")return;
+  const {data,error}=await sb.rpc("admin_list_users");
+  if(error){msg("admMsg","Не удалось загрузить пользователей: "+error.message);return}
+  users=data||[];renderUsers();
+}
+function renderUsers(){
+  const pend=users.filter(u=>u.role==="pending").length;
+  $("admStat").innerHTML="Всего пользователей: "+users.length+". Ожидают подтверждения: <b>"+pend+"</b>";
+  $("admBadge").textContent=pend;show("admBadge",pend>0);
+  $("ubody").innerHTML=users.map((u,i)=>'<tr class="'+(u.role==="pending"?"pend":"")+'">'+
+    '<td><input class="nm" data-i="'+i+'" value="'+esc(u.full_name)+'" maxlength="200" aria-label="ФИО"></td>'+
+    '<td>'+esc(u.email)+(u.id===user.id?' <span class="tag">это вы</span>':'')+'</td>'+
+    '<td><select class="rl" data-i="'+i+'" aria-label="Роль">'+ROLES.map(([k,v])=>'<option value="'+k+'"'+(u.role===k?" selected":"")+'>'+v+'</option>').join("")+'</select></td>'+
+    '<td class="nw">'+fmt(u.created_at)+'</td>'+
+    '<td class="nw"><button class="btn" data-save="'+i+'">Сохранить</button><div class="msg" id="um'+i+'"></div></td></tr>').join("");
+  document.querySelectorAll("[data-save]").forEach(b=>b.onclick=()=>saveUser(+b.dataset.save,b));
+}
+async function saveUser(i,btn){
+  const u=users[i],name=document.querySelector('.nm[data-i="'+i+'"]').value.trim(),role=document.querySelector('.rl[data-i="'+i+'"]').value;
+  if(!name){msg("um"+i,"ФИО не может быть пустым.");return}
+  btn.disabled=true;msg("um"+i,"Сохраняю…","info");
+  let error=null;
+  if(role!==u.role)({error}=await sb.rpc("admin_set_role",{target:u.id,new_role:role}));
+  if(!error&&name!==u.full_name)({error}=await sb.rpc("admin_set_name",{target:u.id,new_name:name}));
+  btn.disabled=false;
+  if(error){msg("um"+i,error.message);return}
+  if(role===u.role&&name===u.full_name){msg("um"+i,"Нет изменений.","info");return}
+  await loadUsers();
+  const j=users.findIndex(x=>x.id===u.id);if(j>=0)msg("um"+j,"Сохранено.","ok");
+  if(u.id===user.id){const me=user;user=null;enter(me)}
+}
+
 init();
 </script>
 </body>
