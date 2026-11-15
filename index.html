@@ -68,7 +68,7 @@ dialog::backdrop{background:#0006}
 
 <form id="login" class="hidden">
   <h1>Реестр входящих заявок</h1>
-  <label>Логин<input id="lLogin" autocomplete="username" autocapitalize="none" required></label>
+  <label>Логин или e-mail<input id="lLogin" autocomplete="username" autocapitalize="none" required></label>
   <label>Пароль<input id="lPass" type="password" autocomplete="current-password" required></label>
   <div class="msg" id="lMsg"></div>
   <button class="btn" id="lBtn">Войти</button>
@@ -131,8 +131,8 @@ dialog::backdrop{background:#0006}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ===== НАСТРОЙКА ===== */
-const SUPABASE_URL = "";       // https://xxxx.supabase.co
-const SUPABASE_ANON_KEY = "";  // публичный anon-ключ (не service_role!)
+const SUPABASE_URL = "https://cyoaplfokzqcqhigmrcq.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_te3CMWG55CGQj7n0f9op3g_VQYfNJEB"; // публичный (publishable) ключ
 const LOGIN_DOMAIN = "reestr.local"; // служебный домен для логинов
 /* ===================== */
 
@@ -163,7 +163,7 @@ function showLogin(){
 $("login").onsubmit=async e=>{
   e.preventDefault();$("lMsg").textContent="";$("lBtn").disabled=true;
   const login=$("lLogin").value.trim().toLowerCase();
-  const {data,error}=await sb.auth.signInWithPassword({email:login+"@"+LOGIN_DOMAIN,password:$("lPass").value});
+  const {data,error}=await sb.auth.signInWithPassword({email:login.includes("@")?login:login+"@"+LOGIN_DOMAIN,password:$("lPass").value});
   $("lBtn").disabled=false;
   if(error){$("lMsg").textContent="Неверный логин или пароль";return}
   start(data.user);
