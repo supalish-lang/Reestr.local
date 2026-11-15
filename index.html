@@ -6,82 +6,199 @@
 <meta name="referrer" content="no-referrer">
 <title>Реестр входящих заявок</title>
 <style>
-:root{color-scheme:light dark;--bg:#f4f6f9;--card:#fff;--ink:#1c2430;--mute:#677386;--line:#e1e6ed;--acc:#1f5eff;--ok:#1a8f4c;--warn:#b36b00;--bad:#c93a3a;--warnbg:#fff6d6;--badbg:#fde6e6;--pendbg:#eef3ff}
-@media (prefers-color-scheme:dark){:root{--bg:#13171d;--card:#1b212b;--ink:#e8ecf3;--mute:#93a0b4;--line:#2c3544;--acc:#6b95ff;--ok:#4cc582;--warn:#e5a93d;--bad:#ef6b6b;--warnbg:#3a2f12;--badbg:#3d1f1f;--pendbg:#1f2a44}}
+:root{
+  color-scheme:light;
+  --bg:#f3f5fa;--card:#ffffff;--card2:#f8f9fc;--ink:#172033;--mute:#65718a;--line:#e3e7ef;
+  --acc:#4459e0;--acc2:#7a4fe0;--accsoft:#eef0ff;--onacc:#fff;
+  --ok:#23946a;--warn:#c47b0c;--bad:#d4405a;--vio:#8456e8;--slate:#8a94a8;
+  --warnbg:#fff5dc;--badbg:#fde8ec;--pendbg:#eef1ff;
+  --shadow:0 1px 2px rgba(20,30,60,.05),0 6px 20px rgba(20,30,60,.06);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#0f131a;--card:#171c25;--card2:#1c2230;--ink:#e7ebf3;--mute:#98a3b8;--line:#283041;
+  --acc:#7d8cff;--acc2:#a585ff;--accsoft:#232a45;--onacc:#0f131a;
+  --ok:#4cc58f;--warn:#e9ad45;--bad:#f06d84;--vio:#a88bff;--slate:#7c879c;
+  --warnbg:#382d12;--badbg:#3c1d25;--pendbg:#1e2540;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0f131a;--card:#171c25;--card2:#1c2230;--ink:#e7ebf3;--mute:#98a3b8;--line:#283041;
+  --acc:#7d8cff;--acc2:#a585ff;--accsoft:#232a45;--onacc:#0f131a;
+  --ok:#4cc58f;--warn:#e9ad45;--bad:#f06d84;--vio:#a88bff;--slate:#7c879c;
+  --warnbg:#382d12;--badbg:#3c1d25;--pendbg:#1e2540;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 input,select,textarea,button{font:inherit;color:var(--ink)}
-input,select,textarea{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 9px;max-width:100%}
+input,select,textarea{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;max-width:100%;outline:none;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--accsoft)}
 button{cursor:pointer}
 a{color:var(--acc)}
-.btn{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:8px 14px}
-.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
-.btn.danger{background:var(--bad)}
-.btn:disabled{opacity:.6;cursor:default}
+svg.i{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--acc),var(--acc2));color:var(--onacc);border:0;border-radius:10px;padding:8px 14px;font-weight:600;white-space:nowrap}
+.btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);font-weight:500}
+.btn.ghost:hover{border-color:var(--acc)}
+.btn.danger{background:var(--bad);color:#fff}
+.btn:disabled{opacity:.55;cursor:default}
+.ibtn{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.ibtn:hover{border-color:var(--acc)}
 .link{background:none;border:0;color:var(--acc);padding:0;text-decoration:underline}
 .hidden{display:none!important}
+.muted{color:var(--mute)}
 
-.center{max-width:380px;margin:10vh auto;padding:0 16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px;display:grid;gap:12px}
+/* вход */
+.center{max-width:400px;margin:9vh auto;padding:0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;display:grid;gap:12px;box-shadow:var(--shadow)}
 .card h1,.card h2{font-size:18px;margin:0}
-.card label,.dlg label{display:grid;gap:4px;font-size:12px;color:var(--mute)}
-.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-.seg button{background:transparent;border:0;padding:8px}
-.seg button.on{background:var(--acc);color:#fff}
+.card label,.dlg label{display:grid;gap:5px;font-size:12px;color:var(--mute)}
+.plain{padding:0;border:0;box-shadow:none}
+.brandbig{display:flex;gap:12px;align-items:center}
+.logo{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;font-weight:800;font-size:18px;flex:none;box-shadow:0 4px 14px rgba(68,89,224,.35)}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+.seg button{background:transparent;border:0;padding:7px;border-radius:8px;color:var(--mute)}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow);font-weight:600}
 .msg{font-size:13px;min-height:18px;white-space:pre-line}
 .msg.err{color:var(--bad)}.msg.ok{color:var(--ok)}.msg.info{color:var(--mute)}
 .setup{max-width:600px;margin:10vh auto;padding:0 16px}
 
-header{padding:16px 20px 6px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
-h1.t{font-size:19px;margin:0}
-.who{font-size:12px;color:var(--mute);margin-top:2px}
-.hbtn{display:flex;gap:8px;flex-wrap:wrap}
-.tabs{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--line)}
-.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:8px 12px;color:var(--mute)}
+/* шапка */
+.bar{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1500px;margin:0 auto;padding:10px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:12px;align-items:center;min-width:0}
+.title{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.who{font-size:12px;color:var(--mute);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--accsoft);color:var(--acc);font-size:11px;font-weight:600}
+.hbtn{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tabs{max-width:1500px;margin:0 auto;display:flex;gap:2px;padding:0 20px;overflow-x:auto}
+.tabs button{display:inline-flex;align-items:center;gap:6px;background:none;border:0;border-bottom:2px solid transparent;padding:9px 12px;color:var(--mute);white-space:nowrap;font-weight:500}
 .tabs button.on{border-color:var(--acc);color:var(--ink)}
-.tabs .badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:999px;background:var(--bad);color:#fff;font-size:11px;text-align:center}
-.wrap{padding:12px 20px 28px}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
-.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px}
-.chip b{margin-left:6px}
-.chip.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
-.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center}
-.filters input[type=search]{flex:1;min-width:200px}
-.ck{display:flex;gap:6px;align-items:center;color:var(--mute)}
-.box{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:calc(100vh - 230px)}
+.badge{display:inline-block;min-width:18px;padding:0 5px;border-radius:999px;background:var(--bad);color:#fff;font-size:11px;text-align:center;font-weight:700}
+.wrap{max-width:1500px;margin:0 auto;padding:16px 20px 32px}
+
+/* виджеты */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin-bottom:16px}
+.kpi{--kc:var(--acc);position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px 13px 18px;text-align:left;display:grid;gap:1px;box-shadow:var(--shadow);transition:transform .12s,box-shadow .12s}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--kc)}
+.kpi:hover{transform:translateY(-2px)}
+.kpi.on{box-shadow:0 0 0 2px var(--kc),var(--shadow)}
+.kpi .kn{font-size:28px;font-weight:750;letter-spacing:-.02em;line-height:1.1;color:var(--kc)}
+.kpi .kl{font-size:13px;font-weight:600}
+.kpi .ks{font-size:12px;color:var(--mute)}
+.kpi .kico{position:absolute;right:12px;top:12px;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:color-mix(in srgb,var(--kc) 14%,transparent);color:var(--kc)}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.toolbar .sp{flex:1}
+.search{position:relative;flex:1;min-width:220px;max-width:420px}
+.search input{width:100%;padding-left:32px}
+.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--mute)}
+.upd{font-size:12px;color:var(--mute);white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 11px;font-size:13px}
+.chip b{font-weight:700;color:var(--mute)}
+.chip.on{border-color:var(--acc);background:var(--accsoft)}
+.chip.on b{color:var(--acc)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--c,var(--slate));flex:none}
+
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:auto;max-height:calc(100vh - 300px);min-height:200px;box-shadow:var(--shadow)}
 table{border-collapse:collapse;width:100%}
-#reqTable{min-width:1150px}
+#reqTable{min-width:1180px}
 #usrTable{min-width:760px}
-th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
-th{position:sticky;top:0;background:var(--card);font-size:12px;color:var(--mute);white-space:nowrap;z-index:1}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:var(--card2);font-size:12px;color:var(--mute);white-space:nowrap;z-index:1;font-weight:600}
+th[data-k]{cursor:pointer;user-select:none}
+th[data-k]:hover{color:var(--ink)}
+th .ar{opacity:.8;margin-left:3px}
+tbody tr{transition:background .1s}
+tbody tr:hover td{background:color-mix(in srgb,var(--accsoft) 50%,transparent)}
 tr:last-child td{border-bottom:0}
 tr.amber td{background:var(--warnbg)}
 tr.red td{background:var(--badbg)}
+tr.amber td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+tr.red td:first-child{box-shadow:inset 3px 0 0 var(--bad)}
 tr.pend td{background:var(--pendbg)}
-td.pre{white-space:pre-wrap;min-width:160px}
+td.pre{white-space:pre-wrap;min-width:170px;max-width:340px}
 td.nw{white-space:nowrap}
-.tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;border:1px solid var(--line)}
-.st{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;border:1px solid currentColor;white-space:nowrap}
-.s-new{color:var(--mute)}.s-work{color:var(--acc)}.s-info,.s-appr{color:var(--warn)}.s-done{color:var(--ok)}.s-rej{color:var(--bad)}
-.act button{background:none;border:1px solid var(--line);border-radius:6px;color:var(--ink);padding:2px 8px;margin:0 4px 4px 0;font-size:12px}
-.act button.del:hover{color:var(--bad);border-color:var(--bad)}
-.empty{padding:34px;text-align:center;color:var(--mute)}
+.due{display:block;font-size:11px;color:var(--mute)}
+.due.l{color:var(--bad);font-weight:600}.due.s{color:var(--warn);font-weight:600}
+.tag{display:inline-block;padding:1px 8px;border-radius:6px;font-size:12px;background:var(--card2);border:1px solid var(--line);white-space:nowrap}
+.st{display:inline-flex;align-items:center;gap:6px;padding:2px 10px 2px 8px;border-radius:999px;font-size:12px;white-space:nowrap;background:color-mix(in srgb,var(--c) 13%,transparent);color:var(--c);font-weight:600}
+.st .dot{background:var(--c)}
+select.stSel{padding:4px 8px;font-size:12px;border-radius:8px}
+.av{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;font-size:10px;font-weight:700;color:#fff;margin-right:6px;vertical-align:middle;flex:none}
+.owner{display:flex;align-items:center;white-space:nowrap}
+.act{white-space:nowrap}
+.act button{display:inline-grid;place-items:center;width:30px;height:30px;background:none;border:1px solid transparent;border-radius:8px;color:var(--mute)}
+.act button:hover{border-color:var(--line);color:var(--acc);background:var(--card)}
+.act button.del:hover{color:var(--bad)}
+.empty{padding:40px;text-align:center;color:var(--mute)}
 .note{font-size:12px;color:var(--mute);margin-top:8px}
 .stat{margin:0 0 12px;font-size:13px}
 .stat b{color:var(--bad)}
 td input.nm{width:100%;min-width:200px}
-dialog{border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);padding:0;width:min(560px,94vw)}
-dialog.sm{width:min(400px,94vw)}
-dialog::backdrop{background:#0006}
-.dlg{padding:18px;display:grid;gap:10px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* аналитика */
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.w{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow);grid-column:span 6;min-width:0}
+.w.s4{grid-column:span 4}.w.s8{grid-column:span 8}.w.s12{grid-column:span 12}
+.w h3{margin:0 0 12px;font-size:14px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.w h3 small{font-weight:400;color:var(--mute);font-size:12px}
+.stack{display:flex;height:14px;border-radius:999px;overflow:hidden;background:var(--card2);margin-bottom:12px}
+.stack span{display:block;height:100%;background:var(--c)}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px 12px;font-size:13px}
+.legend div{display:flex;align-items:center;gap:8px}
+.legend b{margin-left:auto}
+.hb{display:grid;grid-template-columns:minmax(90px,170px) 1fr 44px;gap:8px;align-items:center;font-size:13px;margin-bottom:8px}
+.hb .tr{height:10px;border-radius:999px;background:var(--card2);overflow:hidden;display:flex}
+.hb .tr span{height:100%;display:block}
+.hb .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hb b{text-align:right}
+.cols{display:flex;align-items:flex-end;gap:6px;height:170px;padding-top:18px}
+.cols .c{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;height:100%;justify-content:flex-end}
+.cols .bar2{width:100%;max-width:34px;border-radius:7px 7px 3px 3px;background:linear-gradient(180deg,var(--acc2),var(--acc));min-height:2px}
+.cols .v{font-size:11px;color:var(--mute)}
+.cols .lb{font-size:10px;color:var(--mute);white-space:nowrap}
+.nl{display:grid;gap:6px}
+.nl button{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;text-align:left;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.nl button:hover{border-color:var(--acc)}
+.nl .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dl{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.dl.l{background:var(--badbg);color:var(--bad)}.dl.s{background:var(--warnbg);color:var(--warn)}.dl.n{background:var(--card);color:var(--mute);border:1px solid var(--line)}
+.donut{display:flex;gap:16px;align-items:center}
+.donut svg{width:120px;height:120px;flex:none}
+
+/* окна */
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);padding:0;width:min(600px,94vw);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog.sm{width:min(420px,94vw)}
+dialog.lg{width:min(1000px,96vw)}
+dialog::backdrop{background:rgba(10,14,25,.5);backdrop-filter:blur(2px)}
+.dlg{padding:20px;display:grid;gap:12px}
+.dlg .hd{font-size:16px;font-weight:700}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .foot{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
-@media (max-width:600px){.row2{grid-template-columns:1fr}header,.wrap{padding-left:12px;padding-right:12px}.tabs{padding:0 12px}}
+.hint{font-size:12px;color:var(--mute)}
+.steps{margin:0;padding-left:18px;color:var(--mute);font-size:13px;display:grid;gap:4px}
+#impTable{min-width:860px;font-size:12px}
+#impTable td{padding:6px 8px}
+.okc{color:var(--ok);font-weight:600}.errc{color:var(--bad)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:all .2s;z-index:50;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.toast.err{background:var(--bad);color:#fff}
+@media (max-width:900px){.w,.w.s4,.w.s8{grid-column:span 12}}
+@media (max-width:600px){
+  .row2{grid-template-columns:1fr}
+  .bar-in,.wrap{padding-left:16px;padding-right:16px}.tabs{padding:0 16px}
+  .hbtn .btn.ghost span{display:none}
+  .box{max-height:none}
+}
 </style>
 </head>
 <body>
 
-<!-- Ошибки настройки -->
+<!-- ===== Ошибки настройки ===== -->
 <div id="setupKeys" class="setup hidden">
   <h2>Не заданы ключи Supabase</h2>
   <p>Откройте <code>index.html</code> и впишите <code>SUPABASE_URL</code> и <code>SUPABASE_KEY</code> (Publishable key) в начале скрипта. Шаги описаны в README.md.</p>
@@ -91,47 +208,43 @@ dialog::backdrop{background:#0006}
   <p>Файл <code>supabase.js</code> не найден или заблокирован. Убедитесь, что он загружен в репозиторий рядом с <code>index.html</code>, подождите 1–2 минуты и обновите страницу (Ctrl+F5).</p>
 </div>
 
-<!-- Вход / регистрация / восстановление -->
+<!-- ===== Вход / регистрация ===== -->
 <div id="auth" class="center hidden">
   <div class="card">
-    <h1>Реестр входящих заявок</h1>
+    <div class="brandbig"><div class="logo">Р</div><div><h1>Реестр входящих заявок</h1><div class="muted" style="font-size:12px">Учёт писем-заявок на рассмотрение проектов</div></div></div>
     <div class="seg" id="authSeg">
-      <button type="button" data-mode="login" class="on">Войти</button>
-      <button type="button" data-mode="reg">Зарегистрироваться</button>
+      <button type="button" data-mode="login" class="on">Вход</button>
+      <button type="button" data-mode="reg">Регистрация</button>
     </div>
-
-    <form id="loginForm" class="card" style="padding:0;border:0">
+    <form id="loginForm" class="card plain">
       <label>E-mail<input id="lEmail" type="email" autocomplete="username" autocapitalize="none" required></label>
       <label>Пароль<input id="lPass" type="password" autocomplete="current-password" required></label>
-      <button class="btn" id="lBtn">Войти</button>
+      <button class="btn" id="lBtn" style="justify-content:center">Войти</button>
       <div><button type="button" class="link" id="forgotLink">Забыли пароль?</button></div>
     </form>
-
-    <form id="regForm" class="card hidden" style="padding:0;border:0">
+    <form id="regForm" class="card plain hidden">
       <label>ФИО<input id="rName" autocomplete="name" required maxlength="200"></label>
       <label>E-mail (рабочий, @<span class="dom"></span>)<input id="rEmail" type="email" autocomplete="username" autocapitalize="none" required></label>
       <label>Пароль (не короче 8 символов)<input id="rPass" type="password" autocomplete="new-password" minlength="8" required></label>
       <label>Повторите пароль<input id="rPass2" type="password" autocomplete="new-password" minlength="8" required></label>
-      <button class="btn" id="rBtn">Зарегистрироваться</button>
+      <button class="btn" id="rBtn" style="justify-content:center">Зарегистрироваться</button>
     </form>
-
-    <form id="forgotForm" class="card hidden" style="padding:0;border:0">
+    <form id="forgotForm" class="card plain hidden">
       <div class="msg info">Укажите e-mail, мы отправим ссылку для задания нового пароля.</div>
       <label>E-mail<input id="fEmail" type="email" autocomplete="username" autocapitalize="none" required></label>
-      <button class="btn" id="fBtn">Отправить ссылку</button>
+      <button class="btn" id="fBtn" style="justify-content:center">Отправить ссылку</button>
       <div><button type="button" class="link" id="backLink">← Вернуться ко входу</button></div>
     </form>
-
     <div class="msg" id="aMsg"></div>
   </div>
 </div>
 
-<!-- Ожидание одобрения -->
+<!-- ===== Ожидание одобрения ===== -->
 <div id="pending" class="center hidden">
   <div class="card">
-    <h2>Ожидайте подтверждения администратором</h2>
+    <div class="brandbig"><div class="logo">Р</div><h2>Ожидайте подтверждения администратором</h2></div>
     <div id="pendWho" class="msg info"></div>
-    <p style="margin:0">Вы зарегистрированы. Доступ к заявкам появится после того, как администратор назначит вам роль. Затем обновите страницу.</p>
+    <p style="margin:0">Вы зарегистрированы. Доступ к заявкам появится после того, как администратор назначит вам роль. Затем нажмите «Обновить».</p>
     <div class="foot" style="justify-content:flex-start">
       <button class="btn" id="pendRef">Обновить</button>
       <button class="btn ghost" data-pwd>Сменить пароль</button>
@@ -140,40 +253,55 @@ dialog::backdrop{background:#0006}
   </div>
 </div>
 
-<!-- Приложение -->
+<!-- ===== Приложение ===== -->
 <div id="app" class="hidden">
-  <header>
-    <div>
-      <h1 class="t">Реестр входящих заявок</h1>
-      <div class="who" id="who"></div>
+  <div class="bar">
+    <div class="bar-in">
+      <div class="brand">
+        <div class="logo">Р</div>
+        <div style="min-width:0">
+          <div class="title">Реестр входящих заявок</div>
+          <div class="who"><span id="whoName"></span><span class="pill" id="whoRole"></span></div>
+        </div>
+      </div>
+      <div class="hbtn">
+        <button class="ibtn" id="themeBtn" title="Тема оформления"></button>
+        <button class="btn ghost" data-pwd title="Сменить пароль"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Сменить пароль</span></button>
+        <button class="btn ghost" data-out title="Выйти"><svg class="i" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg><span>Выйти</span></button>
+      </div>
     </div>
-    <div class="hbtn">
-      <button class="btn ghost hidden" id="csvBtn">Выгрузить CSV</button>
-      <button class="btn ghost" id="refBtn">Обновить</button>
-      <button class="btn" id="addBtn">+ Новая заявка</button>
-      <button class="btn ghost" data-pwd>Сменить пароль</button>
-      <button class="btn ghost" data-out>Выйти</button>
-    </div>
-  </header>
-  <nav class="tabs" id="tabs">
-    <button type="button" data-tab="req" class="on">Заявки</button>
-    <button type="button" data-tab="adm" class="hidden" id="admTabBtn">Администрирование<span class="badge hidden" id="admBadge"></span></button>
-  </nav>
+    <nav class="tabs" id="tabs">
+      <button type="button" data-tab="req" class="on"><svg class="i" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Заявки</button>
+      <button type="button" data-tab="stats"><svg class="i" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Аналитика</button>
+      <button type="button" data-tab="adm" class="hidden" id="admTabBtn"><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M19 8v6M16 11h6"/></svg>Администрирование<span class="badge hidden" id="admBadge"></span></button>
+    </nav>
+  </div>
 
+  <!-- Заявки -->
   <section class="wrap" id="tabReq">
-    <div class="chips" id="chips"></div>
-    <div class="filters">
-      <input type="search" id="q" placeholder="Поиск: № письма, поставщик, суть, товары…">
-      <select id="fType"><option value="">Все типы</option><option value="pool">В пул</option><option value="project">На проект</option></select>
-      <select id="fWho" class="hidden"><option value="">Все исполнители</option></select>
-      <label class="ck" title="Не исполненные и не отклонённые заявки с истёкшим рекомендуемым или крайним сроком"><input type="checkbox" id="fLate"> Просроченные</label>
+    <div class="kpis" id="kpis"></div>
+    <div class="toolbar">
+      <div class="search"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="search" id="q" placeholder="Поиск: № письма, поставщик, суть, товары   ( / )"></div>
+      <select id="fType" aria-label="Тип"><option value="">Все типы</option><option value="pool">В пул</option><option value="project">На проект</option></select>
+      <select id="fWho" class="hidden" aria-label="Исполнитель"><option value="">Все исполнители</option></select>
+      <select id="fDue" aria-label="Сроки">
+        <option value="">Все сроки</option><option value="open">Открытые</option><option value="late">Просроченные</option>
+        <option value="red">Истёк крайний срок</option><option value="soon">Рек. срок истекает</option><option value="week">Поступили за 7 дней</option>
+      </select>
       <button class="btn ghost" id="fReset">Сбросить</button>
+      <span class="sp"></span>
+      <span class="upd" id="upd"></span>
+      <button class="ibtn" id="refBtn" title="Обновить"><svg class="i" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
+      <button class="btn ghost hidden" id="csvBtn"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>CSV</button>
+      <button class="btn ghost hidden" id="impBtn"><svg class="i" viewBox="0 0 24 24"><path d="M12 21V9m0 0-4 4m4-4 4 4"/><path d="M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg>Импорт</button>
+      <button class="btn" id="addBtn"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Новая заявка</button>
     </div>
+    <div class="chips" id="chips"></div>
     <div class="box">
       <table id="reqTable">
         <thead><tr>
-          <th>№ письма</th><th>Поступила</th><th>Рек. срок</th><th>Крайний срок</th><th>Тип</th>
-          <th>Поставщик</th><th>Краткая суть</th><th>Товары</th><th>Исполнитель</th><th>Статус</th><th></th>
+          <th data-k="incoming_no">№ письма</th><th data-k="received_date">Поступила</th><th data-k="recommended_date">Рек. срок</th><th data-k="deadline_date">Крайний срок</th><th data-k="req_type">Тип</th>
+          <th data-k="supplier">Поставщик</th><th>Краткая суть</th><th>Товары</th><th data-k="owner">Исполнитель</th><th data-k="status">Статус</th><th></th>
         </tr></thead>
         <tbody id="tbody"></tbody>
       </table>
@@ -183,6 +311,18 @@ dialog::backdrop{background:#0006}
     <div class="msg err" id="appMsg"></div>
   </section>
 
+  <!-- Аналитика -->
+  <section class="wrap hidden" id="tabStats">
+    <div class="grid">
+      <div class="w s8"><h3>Статусы <small id="stStatusSub"></small></h3><div id="stStatus"></div></div>
+      <div class="w s4"><h3>Тип заявок</h3><div id="stType"></div></div>
+      <div class="w s8"><h3>Поступление по неделям <small>последние 12 недель</small></h3><div id="stWeeks"></div></div>
+      <div class="w s4"><h3>Ближайшие крайние сроки</h3><div id="stNext"></div></div>
+      <div class="w s12" id="stLoadW"><h3>Нагрузка исполнителей <small>открытые заявки · красным — истёк крайний срок</small></h3><div id="stLoad"></div></div>
+    </div>
+  </section>
+
+  <!-- Администрирование -->
   <section class="wrap hidden" id="tabAdm">
     <div class="stat" id="admStat"></div>
     <div class="box">
@@ -198,7 +338,7 @@ dialog::backdrop{background:#0006}
 
 <!-- Окно заявки -->
 <dialog id="dlg"><form class="dlg" id="form">
-  <b id="dlgTitle">Новая заявка</b>
+  <div class="hd" id="dlgTitle">Новая заявка</div>
   <div class="row2">
     <label>№ входящего письма<input id="eNo" required maxlength="100"></label>
     <label>Дата поступления<input type="date" id="eDate" required></label>
@@ -207,16 +347,18 @@ dialog::backdrop{background:#0006}
     <label>Тип заявки<select id="eKind"><option value="pool">В пул</option><option value="project">На проект</option></select></label>
     <label>Статус<select id="eStat"></select></label>
   </div>
+  <label id="eOwnerRow" class="hidden">Исполнитель<select id="eOwner"></select></label>
   <label>Наименование поставщика<input id="eSup" required maxlength="500"></label>
   <label>Краткая суть<textarea id="eSum" rows="3" required></textarea></label>
   <label>Наименование товара(ов)<textarea id="eGoods" rows="2"></textarea></label>
+  <div class="hint" id="eMeta"></div>
   <div class="msg info" id="dMsg"></div>
   <div class="foot"><button type="button" class="btn ghost" id="dCancel">Отмена</button><button class="btn" id="dSave">Сохранить</button></div>
 </form></dialog>
 
 <!-- Подтверждение удаления -->
 <dialog id="delDlg" class="sm"><div class="dlg">
-  <b>Удалить заявку?</b>
+  <div class="hd">Удалить заявку?</div>
   <div id="delText"></div>
   <div class="msg err" id="delMsg"></div>
   <div class="foot"><button type="button" class="btn ghost" id="delNo">Отмена</button><button type="button" class="btn danger" id="delYes">Удалить</button></div>
@@ -224,12 +366,37 @@ dialog::backdrop{background:#0006}
 
 <!-- Смена пароля -->
 <dialog id="pwdDlg" class="sm"><form class="dlg" id="pwdForm">
-  <b id="pwdTitle">Сменить пароль</b>
+  <div class="hd" id="pwdTitle">Сменить пароль</div>
   <label>Новый пароль (не короче 8 символов)<input id="pNew" type="password" autocomplete="new-password" minlength="8" required></label>
   <label>Повторите пароль<input id="pNew2" type="password" autocomplete="new-password" minlength="8" required></label>
   <div class="msg" id="pMsg"></div>
   <div class="foot"><button type="button" class="btn ghost" id="pCancel">Закрыть</button><button class="btn" id="pSave">Сохранить</button></div>
 </form></dialog>
+
+<!-- Импорт -->
+<dialog id="impDlg" class="lg"><div class="dlg">
+  <div class="hd">Импорт заявок из Excel</div>
+  <ol class="steps">
+    <li>Скачайте <button type="button" class="link" id="tplBtn">шаблон</button> и заполните его в Excel (или используйте свою таблицу с такими же заголовками).</li>
+    <li>Сохраните как «CSV UTF-8» и выберите файл — или просто скопируйте строки вместе с заголовком из Excel и вставьте в поле ниже.</li>
+    <li>Проверьте предпросмотр: строки с ошибками будут пропущены. Сроки рассчитаются автоматически.</li>
+  </ol>
+  <div class="row2">
+    <label>Файл CSV<input type="file" id="impFile" accept=".csv,.txt,text/csv,text/plain"></label>
+    <label>…или вставьте строки из Excel<textarea id="impText" rows="2" placeholder="№ письма	Дата поступления	Тип	Поставщик	…"></textarea></label>
+  </div>
+  <div class="row2">
+    <label>Исполнитель, если не указан в строке<select id="impOwner"></select></label>
+    <label>Тип, если не указан в строке<select id="impType"><option value="">— не задан (ошибка) —</option><option value="pool">В пул</option><option value="project">На проект</option></select></label>
+  </div>
+  <div class="msg info" id="impSum">Выберите файл или вставьте строки.</div>
+  <div class="box" style="max-height:42vh;min-height:0">
+    <table id="impTable"><thead><tr><th>#</th><th>№ письма</th><th>Поступила</th><th>Тип</th><th>Поставщик</th><th>Краткая суть</th><th>Исполнитель</th><th>Статус</th><th>Проверка</th></tr></thead><tbody id="impBody"></tbody></table>
+  </div>
+  <div class="foot"><button type="button" class="btn ghost" id="impClose">Закрыть</button><button type="button" class="btn" id="impGo" disabled>Загрузить</button></div>
+</div></dialog>
+
+<div class="toast" id="toast"></div>
 
 <script src="supabase.js"></script>
 <script>
@@ -242,25 +409,62 @@ const TZ_OFFSET_HOURS = 5;      // «сегодня» считается по UT
 
 const STATUSES=[["new","Новая"],["work","В работе"],["info","Запрошены доп. данные"],["appr","На согласовании"],["done","Исполнена"],["rej","Отклонена"]];
 const SN=Object.fromEntries(STATUSES);
+const SC={new:"var(--slate)",work:"var(--acc)",info:"var(--warn)",appr:"var(--vio)",done:"var(--ok)",rej:"var(--bad)"};
 const TN={pool:"В пул",project:"На проект"};
 const ROLES=[["pending","Ожидает подтверждения"],["executor","Исполнитель"],["manager","Руководитель"],["admin","Администратор"]];
 const RN=Object.fromEntries(ROLES);
 const CLOSED=["done","rej"];
 const MIN_PASS=8;
+const IC={
+  edit:'<svg class="i" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  del:'<svg class="i" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>',
+  inbox:'<svg class="i" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6Z"/></svg>',
+  alert:'<svg class="i" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>',
+  clock:'<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  plus:'<svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  check:'<svg class="i" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
+  sun:'<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  moon:'<svg class="i" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>',
+  auto:'<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor"/></svg>'
+};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const pad=n=>String(n).padStart(2,"0");
 /* дата «сегодня + days» в UTC+5 в виде ГГГГ-ММ-ДД (без toISOString) */
 function kzDay(days){const d=new Date(Date.now()+TZ_OFFSET_HOURS*3600e3+(days||0)*864e5);return d.getUTCFullYear()+"-"+pad(d.getUTCMonth()+1)+"-"+pad(d.getUTCDate())}
+function kzTime(){const d=new Date(Date.now()+TZ_OFFSET_HOURS*3600e3);return pad(d.getUTCHours())+":"+pad(d.getUTCMinutes())}
+const dnum=s=>{const p=String(s).slice(0,10).split("-");return Date.UTC(+p[0],+p[1]-1,+p[2])/864e5};
+const dstr=n=>{const d=new Date(n*864e5);return d.getUTCFullYear()+"-"+pad(d.getUTCMonth()+1)+"-"+pad(d.getUTCDate())};
 const fmt=d=>{if(!d)return"";const p=String(d).slice(0,10).split("-");return p[2]+"."+p[1]+"."+p[0]};
 const show=(id,on)=>$(id).classList.toggle("hidden",!on);
 function msg(id,text,kind){const m=$(id);m.textContent=text||"";m.className="msg "+(kind||"err")}
+let toastT=null;
+function toast(text,err){const t=$("toast");t.textContent=text;t.className="toast show"+(err?" err":"");clearTimeout(toastT);toastT=setTimeout(()=>t.className="toast",3200)}
 const SITE_URL=location.origin+location.pathname;
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const norm=s=>String(s??"").toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ").trim();
+function avatar(name){
+  const w=String(name||"?").trim().split(/\s+/);const ini=((w[0]||"?")[0]+((w[1]||"")[0]||"")).toUpperCase();
+  let h=0;for(const c of String(name))h=(h*31+c.charCodeAt(0))%360;
+  return '<span class="av" style="background:hsl('+h+' 55% 50%)">'+esc(ini)+'</span>';
+}
 
 document.querySelectorAll(".dom").forEach(e=>e.textContent=EMAIL_DOMAIN);
 STATUSES.forEach(([k,v])=>$("eStat").add(new Option(v,k)));
 
-let sb=null,user=null,profile=null,rows=[],names={},filterSt="",editing=null,timer=null,tab="req",recovery=false,entering=null;
+/* ---------- тема ---------- */
+const THEMES=["auto","light","dark"],THN={auto:"Тема: как в системе",light:"Тема: светлая",dark:"Тема: тёмная"};
+let theme=lsGet("reestr-theme")||"auto";
+function applyTheme(){
+  if(theme==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",theme);
+  $("themeBtn").innerHTML=IC[theme==="auto"?"auto":theme==="light"?"sun":"moon"];$("themeBtn").title=THN[theme];
+}
+$("themeBtn").onclick=()=>{theme=THEMES[(THEMES.indexOf(theme)+1)%3];lsSet("reestr-theme",theme);applyTheme();toast(THN[theme])};
+applyTheme();
+
+let sb=null,user=null,profile=null,isMgr=false,isAdm=false,rows=[],profiles=[],names={},filterSt="",editing=null,timer=null,tab="req",recovery=false,entering=null;
+let sortK="received_date",sortD=-1;
 
 /* ---------- запуск ---------- */
 function init(){
@@ -268,7 +472,6 @@ function init(){
   if(!window.supabase||typeof window.supabase.createClient!=="function"){show("setupLib",true);return}
   sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
   sb.auth.onAuthStateChange((ev,session)=>{
-    // вызовы Supabase из обработчика — через setTimeout (рекомендация библиотеки)
     setTimeout(()=>{
       if(ev==="PASSWORD_RECOVERY"){recovery=true;openPwd(true);return}
       if(ev==="SIGNED_OUT"||!session){user=null;profile=null;showAuth();return}
@@ -276,11 +479,8 @@ function init(){
     },0);
   });
 }
-
 function hideAll(){["auth","pending","app","setupKeys","setupLib"].forEach(id=>show(id,false));clearInterval(timer)}
-function showAuth(){
-  hideAll();show("auth",true);$("lPass").value="";setMode("login");
-}
+function showAuth(){hideAll();show("auth",true);$("lPass").value="";setMode("login")}
 function setMode(m){
   show("loginForm",m==="login");show("regForm",m==="reg");show("forgotForm",m==="forgot");
   document.querySelectorAll("#authSeg button").forEach(b=>b.classList.toggle("on",b.dataset.mode===m));
@@ -304,15 +504,13 @@ function authErr(e){
   return"Ошибка: "+m;
 }
 
-/* ---------- вход ---------- */
+/* ---------- вход, регистрация, пароль ---------- */
 $("loginForm").onsubmit=async e=>{
   e.preventDefault();msg("aMsg","");$("lBtn").disabled=true;
   const {error}=await sb.auth.signInWithPassword({email:$("lEmail").value.trim().toLowerCase(),password:$("lPass").value});
   $("lBtn").disabled=false;
   if(error)msg("aMsg",authErr(error));
 };
-
-/* ---------- регистрация ---------- */
 $("regForm").onsubmit=async e=>{
   e.preventDefault();msg("aMsg","");
   const name=$("rName").value.trim(),email=$("rEmail").value.trim().toLowerCase(),p1=$("rPass").value,p2=$("rPass2").value;
@@ -324,15 +522,8 @@ $("regForm").onsubmit=async e=>{
   const {data,error}=await sb.auth.signUp({email,password:p1,options:{data:{full_name:name},emailRedirectTo:SITE_URL}});
   $("rBtn").disabled=false;
   if(error){msg("aMsg",authErr(error));return}
-  if(!data.session){
-    // включено подтверждение e-mail: сессии пока нет
-    $("lEmail").value=email;setMode("login");
-    msg("aMsg","Регистрация принята. Откройте письмо, подтвердите адрес и затем войдите.","ok");
-  }
-  // если подтверждение выключено, сработает SIGNED_IN и откроется экран ожидания
+  if(!data.session){$("lEmail").value=email;setMode("login");msg("aMsg","Регистрация принята. Откройте письмо, подтвердите адрес и затем войдите.","ok")}
 };
-
-/* ---------- забыли пароль ---------- */
 $("forgotForm").onsubmit=async e=>{
   e.preventDefault();msg("aMsg","");$("fBtn").disabled=true;
   const {error}=await sb.auth.resetPasswordForEmail($("fEmail").value.trim().toLowerCase(),{redirectTo:SITE_URL});
@@ -340,8 +531,6 @@ $("forgotForm").onsubmit=async e=>{
   if(error){msg("aMsg",authErr(error));return}
   msg("aMsg","Если адрес зарегистрирован, на него отправлено письмо со ссылкой. Откройте ссылку и задайте новый пароль.\nПисьмо не пришло? Проверьте «Спам» или обратитесь к администратору.","ok");
 };
-
-/* ---------- выход и смена пароля ---------- */
 document.querySelectorAll("[data-out]").forEach(b=>b.onclick=()=>sb.auth.signOut());
 document.querySelectorAll("[data-pwd]").forEach(b=>b.onclick=()=>openPwd(false));
 function openPwd(isRecovery){
@@ -377,31 +566,45 @@ async function enter(u){
       $("pendWho").textContent=(p?p.full_name+" · ":"")+(u.email||"")+(p?"":"\nПрофиль не найден — сообщите администратору.");
       return;
     }
-    const mgr=p.role==="manager"||p.role==="admin",adm=p.role==="admin";
-    names={};names[p.id]=p.full_name;
-    const sel=$("fWho");sel.length=1;
-    if(mgr){
-      const {data:all}=await sb.from("profiles").select("id,full_name");
-      (all||[]).forEach(x=>names[x.id]=x.full_name);
-      (all||[]).slice().sort((a,b)=>a.full_name.localeCompare(b.full_name,"ru")).forEach(x=>sel.add(new Option(x.full_name,x.id)));
-    }
+    isMgr=p.role==="manager"||p.role==="admin";isAdm=p.role==="admin";
+    await loadProfiles();
     hideAll();show("app",true);
-    $("who").textContent=p.full_name+" · "+RN[p.role]+(mgr?" · видны все заявки, чужие — только просмотр":" · видны и редактируются ваши заявки");
-    show("csvBtn",mgr);show("fWho",mgr);show("admTabBtn",adm);
-    if(!adm&&tab==="adm")setTab("req");
+    $("whoName").textContent=p.full_name;$("whoRole").textContent=RN[p.role];
+    show("fWho",isMgr);show("admTabBtn",isAdm);show("stLoadW",isMgr);
+    if(!isAdm&&tab==="adm")tab="req";
+    setTab(tab);
     await load();
-    if(adm)loadUsers();
+    if(isAdm)loadUsers();
     clearInterval(timer);
-    timer=setInterval(()=>{if(!document.hidden&&!document.querySelector("dialog[open]")){if(tab==="req")load();else loadUsers()}},60000);
+    timer=setInterval(()=>{if(!document.hidden&&!document.querySelector("dialog[open]")){if(tab==="adm")loadUsers();else load()}},60000);
   }finally{entering=null}
 }
 $("pendRef").onclick=()=>{if(user){const u=user;user=null;enter(u)}};
 
+async function loadProfiles(){
+  names={};names[profile.id]=profile.full_name;profiles=[profile];
+  if(isMgr){
+    const {data}=await sb.from("profiles").select("id,login,full_name,role");
+    if(data)profiles=data;
+    profiles.forEach(x=>names[x.id]=x.full_name);
+  }
+  const sel=$("fWho"),cur=sel.value;sel.length=1;
+  profiles.slice().sort((a,b)=>a.full_name.localeCompare(b.full_name,"ru")).forEach(x=>sel.add(new Option(x.full_name,x.id)));
+  sel.value=cur;
+}
+const assignable=()=>profiles.filter(p=>["executor","manager","admin"].includes(p.role)).sort((a,b)=>a.full_name.localeCompare(b.full_name,"ru"));
+function fillOwnerSelect(sel,value,placeholder){
+  sel.length=0;sel.add(new Option(placeholder,""));
+  assignable().forEach(p=>sel.add(new Option(p.full_name+(p.role!=="executor"?" ("+RN[p.role].toLowerCase()+")":""),p.id)));
+  sel.value=value||"";
+}
+
 function setTab(t){
   tab=t;document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));
-  show("tabReq",t==="req");show("tabAdm",t==="adm");
-  show("addBtn",t==="req");show("csvBtn",t==="req"&&profile&&(profile.role==="manager"||profile.role==="admin"));
+  show("tabReq",t==="req");show("tabStats",t==="stats");show("tabAdm",t==="adm");
+  show("csvBtn",isMgr);show("impBtn",isMgr);
   if(t==="adm")loadUsers();
+  if(t==="stats")renderStats();
 }
 document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 
@@ -409,64 +612,131 @@ document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>setTab(b.data
 async function load(){
   const {data,error}=await sb.from("requests").select("*").order("received_date",{ascending:false}).order("created_at",{ascending:false});
   if(error){msg("appMsg","Не удалось загрузить данные: "+error.message);return}
-  msg("appMsg","");rows=data||[];render();
+  msg("appMsg","");rows=data||[];
+  if(isMgr&&rows.some(r=>!names[r.owner_id]))await loadProfiles();
+  $("upd").textContent="Обновлено в "+kzTime();
+  render();if(tab==="stats")renderStats();
 }
-$("refBtn").onclick=()=>tab==="req"?load():loadUsers();
+$("refBtn").onclick=async()=>{if(tab==="adm")await loadUsers();else{await load();toast("Список обновлён")}};
 
+const isOpen=r=>!CLOSED.includes(r.status);
 function rowState(r){
-  if(CLOSED.includes(r.status))return"";
+  if(!isOpen(r))return"";
   if(r.deadline_date&&r.deadline_date<kzDay(0))return"red";
   if(r.recommended_date&&r.recommended_date<=kzDay(1))return"amber";
   return"";
 }
-function isLate(r){const t=kzDay(0);return!CLOSED.includes(r.status)&&((r.deadline_date&&r.deadline_date<t)||(r.recommended_date&&r.recommended_date<t))}
+function isLate(r){const t=kzDay(0);return isOpen(r)&&((r.deadline_date&&r.deadline_date<t)||(r.recommended_date&&r.recommended_date<t))}
+function dueText(r){
+  if(!isOpen(r)||!r.deadline_date)return"";
+  const d=dnum(r.deadline_date)-dnum(kzDay(0));
+  if(d<0)return'<span class="due l">просрочено на '+(-d)+' дн.</span>';
+  if(d===0)return'<span class="due l">сегодня</span>';
+  return'<span class="due'+(d<=3?" s":"")+'">через '+d+' дн.</span>';
+}
+function dueOk(r,f){
+  switch(f){
+    case"open":return isOpen(r);
+    case"late":return isLate(r);
+    case"red":return rowState(r)==="red";
+    case"soon":return rowState(r)==="amber";
+    case"week":return r.received_date>=kzDay(-6);
+    default:return true;
+  }
+}
 function visible(ignoreStatus){
-  const q=$("q").value.trim().toLowerCase(),ty=$("fType").value,w=$("fWho").value,late=$("fLate").checked;
-  return rows.filter(r=>(ignoreStatus||!filterSt||r.status===filterSt)&&(!ty||r.req_type===ty)&&(!w||r.owner_id===w)&&
-    (!late||isLate(r))&&(!q||[r.incoming_no,r.supplier,r.summary,r.goods].join(" ").toLowerCase().includes(q)));
+  const q=norm($("q").value),ty=$("fType").value,w=$("fWho").value,due=$("fDue").value;
+  return rows.filter(r=>(ignoreStatus||!filterSt||r.status===filterSt)&&(!ty||r.req_type===ty)&&(!w||r.owner_id===w)&&dueOk(r,due)&&
+    (!q||norm([r.incoming_no,r.supplier,r.summary,r.goods].join(" ")).includes(q)));
+}
+const ST_ORDER=Object.fromEntries(STATUSES.map(([k],i)=>[k,i]));
+function sortRows(list){
+  const val=r=>sortK==="owner"?(names[r.owner_id]||""):sortK==="status"?ST_ORDER[r.status]:r[sortK];
+  return list.slice().sort((a,b)=>{
+    const x=val(a),y=val(b);
+    if(x==null||x==="")return 1;if(y==null||y==="")return -1;
+    const c=typeof x==="number"?x-y:String(x).localeCompare(String(y),"ru",{numeric:true});
+    return c*sortD||(String(b.created_at).localeCompare(String(a.created_at)));
+  });
+}
+document.querySelectorAll("#reqTable th[data-k]").forEach(th=>th.onclick=()=>{
+  const k=th.dataset.k;if(sortK===k)sortD=-sortD;else{sortK=k;sortD=["received_date"].includes(k)?-1:1}render();
+});
+const canEdit=r=>r.owner_id===user.id||isMgr;
+const canStatus=r=>r.owner_id===user.id;
+const canDel=r=>r.owner_id===user.id||isAdm;
+
+function renderKpis(){
+  const open=rows.filter(isOpen),red=rows.filter(r=>rowState(r)==="red"),soon=rows.filter(r=>rowState(r)==="amber");
+  const week=rows.filter(r=>r.received_date>=kzDay(-6));
+  const t30=Date.now()-30*864e5,done30=rows.filter(r=>r.status==="done"&&new Date(r.updated_at).getTime()>=t30);
+  const due=$("fDue").value;
+  const k=(id,kc,ico,n,l,s,on)=>'<button class="kpi'+(on?" on":"")+'" data-kpi="'+id+'" style="--kc:'+kc+'"><span class="kico">'+ico+'</span><span class="kn">'+n+'</span><span class="kl">'+l+'</span><span class="ks">'+s+'</span></button>';
+  $("kpis").innerHTML=
+    k("open","var(--acc)",IC.inbox,open.length,"Открытые заявки","из "+rows.length+" всего",due==="open")+
+    k("red","var(--bad)",IC.alert,red.length,"Истёк крайний срок",red.length?"требуют внимания":"всё в порядке",due==="red")+
+    k("soon","var(--warn)",IC.clock,soon.length,"Рек. срок истекает","сегодня, завтра или уже",due==="soon")+
+    k("week","var(--vio)",IC.plus,week.length,"Поступили за 7 дней","с "+fmt(kzDay(-6)),due==="week")+
+    k("done","var(--ok)",IC.check,done30.length,"Исполнено за 30 дней","по дате изменения",filterSt==="done"&&!due);
+  document.querySelectorAll("[data-kpi]").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.kpi;
+    if(id==="done"){const on=filterSt==="done"&&!$("fDue").value;$("fDue").value="";filterSt=on?"":"done"}
+    else{$("fDue").value=$("fDue").value===id?"":id;filterSt=""}
+    render();
+  });
 }
 function render(){
+  renderKpis();
   const base=visible(true),cnt={};base.forEach(r=>cnt[r.status]=(cnt[r.status]||0)+1);
   $("chips").innerHTML='<button class="chip'+(filterSt?"":" on")+'" data-s="">Все<b>'+base.length+'</b></button>'+
-    STATUSES.map(([k,v])=>'<button class="chip'+(filterSt===k?" on":"")+'" data-s="'+k+'">'+v+'<b>'+(cnt[k]||0)+'</b></button>').join("");
+    STATUSES.map(([k,v])=>'<button class="chip'+(filterSt===k?" on":"")+'" data-s="'+k+'"><span class="dot" style="--c:'+SC[k]+'"></span>'+v+'<b>'+(cnt[k]||0)+'</b></button>').join("");
   document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{filterSt=c.dataset.s;render()});
-  const list=visible(false);
+  document.querySelectorAll("#reqTable th[data-k]").forEach(th=>{
+    th.querySelector(".ar")?.remove();
+    if(th.dataset.k===sortK)th.insertAdjacentHTML("beforeend",'<span class="ar">'+(sortD>0?"↑":"↓")+'</span>');
+  });
+  const list=sortRows(visible(false));
   show("empty",list.length===0);
-  $("empty").textContent=rows.length?"По выбранным фильтрам заявок нет":"Заявок пока нет";
+  $("empty").textContent=rows.length?"По выбранным фильтрам заявок нет":"Заявок пока нет. Нажмите «Новая заявка».";
   $("tbody").innerHTML=list.map(r=>{
-    const own=r.owner_id===user.id;
-    const st=own?'<select class="stSel" data-id="'+esc(r.id)+'" aria-label="Статус">'+STATUSES.map(([k,v])=>'<option value="'+k+'"'+(r.status===k?" selected":"")+'>'+v+'</option>').join("")+'</select>'
-      :'<span class="st s-'+esc(r.status)+'">'+esc(SN[r.status])+'</span>';
+    const st=canStatus(r)?'<select class="stSel" data-id="'+esc(r.id)+'" aria-label="Статус">'+STATUSES.map(([k,v])=>'<option value="'+k+'"'+(r.status===k?" selected":"")+'>'+v+'</option>').join("")+'</select>'
+      :'<span class="st" style="--c:'+SC[r.status]+'"><span class="dot"></span>'+esc(SN[r.status])+'</span>';
+    const nm=names[r.owner_id]||"—";
     return '<tr class="'+rowState(r)+'"><td class="nw"><b>'+esc(r.incoming_no)+'</b></td><td class="nw">'+fmt(r.received_date)+
-      '</td><td class="nw">'+fmt(r.recommended_date)+'</td><td class="nw">'+fmt(r.deadline_date)+
+      '</td><td class="nw">'+fmt(r.recommended_date)+'</td><td class="nw">'+fmt(r.deadline_date)+dueText(r)+
       '</td><td><span class="tag">'+esc(TN[r.req_type])+'</span></td><td>'+esc(r.supplier)+
-      '</td><td class="pre">'+esc(r.summary)+'</td><td class="pre">'+esc(r.goods)+'</td><td>'+esc(names[r.owner_id]||"—")+
-      '</td><td>'+st+'</td><td class="act nw">'+(own?'<button data-edit="'+esc(r.id)+'">изменить</button><button class="del" data-del="'+esc(r.id)+'">удалить</button>':"")+'</td></tr>';
+      '</td><td class="pre">'+esc(r.summary)+'</td><td class="pre">'+esc(r.goods)+'</td><td><span class="owner">'+avatar(nm)+esc(nm)+'</span>'+
+      '</td><td>'+st+'</td><td class="act">'+
+      (canEdit(r)?'<button data-edit="'+esc(r.id)+'" title="Изменить">'+IC.edit+'</button>':"")+
+      (canDel(r)?'<button class="del" data-del="'+esc(r.id)+'" title="Удалить">'+IC.del+'</button>':"")+'</td></tr>';
   }).join("");
   document.querySelectorAll(".stSel").forEach(s=>s.onchange=()=>setStatus(s.dataset.id,s.value));
   document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openDlg(b.dataset.edit));
   document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>askDel(b.dataset.del));
-  $("note").textContent="Показано: "+list.length+" из "+rows.length+". Жёлтым выделены заявки, у которых рекомендуемый срок истёк или истекает завтра, красным — с истёкшим крайним сроком (кроме исполненных и отклонённых).";
+  $("note").textContent="Показано: "+list.length+" из "+rows.length+". Жёлтым выделены заявки, у которых рекомендуемый срок истёк или истекает завтра, красным — с истёкшим крайним сроком (кроме исполненных и отклонённых). Нажмите на заголовок колонки для сортировки.";
 }
-["q","fType","fWho","fLate"].forEach(id=>$(id).addEventListener(id==="q"?"input":"change",render));
-$("fReset").onclick=()=>{$("q").value="";$("fType").value="";$("fWho").value="";$("fLate").checked=false;filterSt="";render()};
+["q","fType","fWho","fDue"].forEach(id=>$(id).addEventListener(id==="q"?"input":"change",render));
+$("fReset").onclick=()=>{$("q").value="";$("fType").value="";$("fWho").value="";$("fDue").value="";filterSt="";render()};
+document.addEventListener("keydown",e=>{
+  if(e.key==="/"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)&&!document.querySelector("dialog[open]")&&tab==="req"&&!$("app").classList.contains("hidden")){e.preventDefault();$("q").focus()}
+});
 
 function dbErr(error){
   if(!error)return"";
   if(error.code==="23505")return"Заявка с таким № входящего письма уже зарегистрирована.";
-  if(error.code==="42501"||/row-level security/i.test(error.message))return"Недостаточно прав для этого действия.";
+  if(/row-level security|permission denied/i.test(error.message))return"Недостаточно прав для этого действия.";
   return error.message;
 }
 async function setStatus(id,status){
-  const {error}=await sb.from("requests").update({status}).eq("id",id);
-  if(error)msg("appMsg","Не удалось сменить статус: "+dbErr(error));
+  const {data,error}=await sb.from("requests").update({status}).eq("id",id).select("id");
+  if(error||!data||!data.length){msg("appMsg","Не удалось сменить статус: "+(error?dbErr(error):"недостаточно прав."));toast("Статус не изменён",true)}else toast("Статус: "+SN[status]);
   await load();
 }
 
 let delId=null;
 function askDel(id){
   const r=rows.find(x=>x.id===id);if(!r)return;delId=id;
-  $("delText").textContent="№ "+r.incoming_no+" · "+r.supplier+". Удаление нельзя отменить.";
+  $("delText").textContent="№ "+r.incoming_no+" · "+r.supplier+(r.owner_id!==user.id?" · исполнитель: "+(names[r.owner_id]||"—"):"")+". Удаление нельзя отменить.";
   msg("delMsg","");$("delYes").disabled=false;$("delDlg").showModal();
 }
 $("delNo").onclick=()=>$("delDlg").close();
@@ -475,15 +745,29 @@ $("delYes").onclick=async()=>{
   const {data,error}=await sb.from("requests").delete().eq("id",delId).select("id");
   $("delYes").disabled=false;
   if(error||!data||!data.length){msg("delMsg","Не удалось удалить: "+(error?dbErr(error):"заявка не найдена или нет прав."));return}
-  $("delDlg").close();await load();
+  $("delDlg").close();toast("Заявка удалена");await load();
 };
 
+let lastOwner=lsGet("reestr-last-owner")||"";
 function openDlg(id){
   editing=id||null;const r=id?rows.find(x=>x.id===id):{};
-  $("dlgTitle").textContent=id?"Изменить заявку":"Новая заявка";
+  const own=!id||r.owner_id===user.id;
+  $("dlgTitle").textContent=id?"Заявка № "+r.incoming_no:"Новая заявка";
   $("eNo").value=r.incoming_no||"";$("eDate").value=r.received_date||kzDay(0);
   $("eKind").value=r.req_type||"pool";$("eStat").value=r.status||"new";
   $("eSup").value=r.supplier||"";$("eSum").value=r.summary||"";$("eGoods").value=r.goods||"";
+  show("eOwnerRow",isMgr);
+  if(isMgr)fillOwnerSelect($("eOwner"),id?r.owner_id:(assignable().some(p=>p.id===lastOwner)?lastOwner:""),"— выберите исполнителя —");
+  $("eStat").disabled=!!id&&!own;
+  $("eStat").title=$("eStat").disabled?"Статус меняет только исполнитель заявки":"";
+  const meta=[];
+  if(id){
+    if(r.created_by)meta.push("Зарегистрировал(а): "+(names[r.created_by]||"—"));
+    meta.push("Создана: "+new Date(r.created_at).toLocaleString("ru-RU"));
+    if(r.updated_at)meta.push("Изменена: "+new Date(r.updated_at).toLocaleString("ru-RU"));
+    if($("eStat").disabled)meta.push("Статус меняет только исполнитель.");
+  }
+  $("eMeta").textContent=meta.join(" · ");
   msg("dMsg","Рекомендуемый срок (+5 рабочих дней) и крайний срок (+15 рабочих дней) рассчитаются автоматически после сохранения.","info");
   $("dSave").disabled=false;$("dlg").showModal();
 }
@@ -491,30 +775,196 @@ $("addBtn").onclick=()=>openDlg();
 $("dCancel").onclick=()=>$("dlg").close();
 $("form").onsubmit=async e=>{
   e.preventDefault();
-  const v={incoming_no:$("eNo").value.trim(),received_date:$("eDate").value,req_type:$("eKind").value,status:$("eStat").value,
+  const v={incoming_no:$("eNo").value.trim(),received_date:$("eDate").value,req_type:$("eKind").value,
     supplier:$("eSup").value.trim(),summary:$("eSum").value.trim(),goods:$("eGoods").value.trim()||null};
+  if(!$("eStat").disabled)v.status=$("eStat").value;
   if(!v.incoming_no||!v.received_date||!v.supplier||!v.summary){msg("dMsg","Заполните обязательные поля.");return}
+  if(isMgr){
+    v.owner_id=$("eOwner").value;
+    if(!v.owner_id){msg("dMsg","Выберите исполнителя.");return}
+    if(!editing){lastOwner=v.owner_id;lsSet("reestr-last-owner",lastOwner)}
+  }
   $("dSave").disabled=true;
-  const {error}=editing?await sb.from("requests").update(v).eq("id",editing):await sb.from("requests").insert(v);
+  const {data,error}=editing?await sb.from("requests").update(v).eq("id",editing).select("id"):await sb.from("requests").insert(v).select("id");
   $("dSave").disabled=false;
   if(error){msg("dMsg","Не удалось сохранить: "+dbErr(error));return}
-  $("dlg").close();await load();
+  if(!data||!data.length){msg("dMsg","Не удалось сохранить: недостаточно прав или заявка удалена.");return}
+  $("dlg").close();toast(editing?"Изменения сохранены":"Заявка зарегистрирована, сроки рассчитаны");await load();
 };
 
-$("csvBtn").onclick=()=>{
-  const cell=x=>'"'+String(x??"").replace(/"/g,'""').replace(/\r?\n/g," ")+'"';
-  const head=["№ письма","Поступила","Рек. срок","Крайний срок","Тип","Поставщик","Краткая суть","Товары","Исполнитель","Статус"];
-  const lines=[head.map(cell).join(";")].concat(visible(false).map(r=>[r.incoming_no,fmt(r.received_date),fmt(r.recommended_date),fmt(r.deadline_date),
-    TN[r.req_type],r.supplier,r.summary,r.goods,names[r.owner_id],SN[r.status]].map(cell).join(";")));
-  const blob=new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="zayavki_"+kzDay(0)+".csv";
+/* ---------- CSV ---------- */
+function download(name,text){
+  const blob=new Blob(["﻿"+text],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;
   document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+const cell=x=>'"'+String(x??"").replace(/"/g,'""').replace(/\r?\n/g," ")+'"';
+$("csvBtn").onclick=()=>{
+  const head=["№ письма","Поступила","Рек. срок","Крайний срок","Тип","Поставщик","Краткая суть","Товары","Исполнитель","Статус"];
+  const lines=[head.map(cell).join(";")].concat(sortRows(visible(false)).map(r=>[r.incoming_no,fmt(r.received_date),fmt(r.recommended_date),fmt(r.deadline_date),
+    TN[r.req_type],r.supplier,r.summary,r.goods,names[r.owner_id],SN[r.status]].map(cell).join(";")));
+  download("zayavki_"+kzDay(0)+".csv",lines.join("\r\n"));
+};
+
+/* ---------- аналитика ---------- */
+function renderStats(){
+  const total=rows.length;
+  // статусы
+  const cnt={};rows.forEach(r=>cnt[r.status]=(cnt[r.status]||0)+1);
+  $("stStatusSub").textContent="всего "+total;
+  $("stStatus").innerHTML=total?'<div class="stack">'+STATUSES.filter(([k])=>cnt[k]).map(([k,v])=>'<span title="'+v+': '+cnt[k]+'" style="--c:'+SC[k]+';width:'+(cnt[k]/total*100)+'%"></span>').join("")+'</div>'+
+    '<div class="legend">'+STATUSES.map(([k,v])=>'<div><span class="dot" style="--c:'+SC[k]+'"></span>'+v+'<b>'+(cnt[k]||0)+'</b></div>').join("")+'</div>'
+    :'<div class="muted">Пока нет данных</div>';
+  // тип — кольцевая диаграмма
+  const pool=rows.filter(r=>r.req_type==="pool").length,proj=total-pool;
+  const C=2*Math.PI*42,pp=total?pool/total:0;
+  $("stType").innerHTML=total?'<div class="donut"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--card2)" stroke-width="14"/>'+
+    '<circle cx="50" cy="50" r="42" fill="none" stroke="var(--vio)" stroke-width="14" stroke-dasharray="'+C+'" stroke-dashoffset="0" transform="rotate(-90 50 50)"/>'+
+    '<circle cx="50" cy="50" r="42" fill="none" stroke="var(--acc)" stroke-width="14" stroke-dasharray="'+(C*pp)+' '+C+'" transform="rotate(-90 50 50)"/>'+
+    '<text x="50" y="55" text-anchor="middle" font-size="18" font-weight="700" fill="var(--ink)">'+total+'</text></svg>'+
+    '<div class="legend" style="grid-template-columns:1fr"><div><span class="dot" style="--c:var(--acc)"></span>В пул<b>'+pool+'</b></div><div><span class="dot" style="--c:var(--vio)"></span>На проект<b>'+proj+'</b></div></div></div>'
+    :'<div class="muted">Пока нет данных</div>';
+  // по неделям
+  const today=dnum(kzDay(0)),mon=today-((new Date(today*864e5).getUTCDay()+6)%7),weeks=[];
+  for(let i=11;i>=0;i--)weeks.push({s:mon-7*i,n:0});
+  rows.forEach(r=>{const d=dnum(r.received_date),i=Math.floor((d-weeks[0].s)/7);if(i>=0&&i<12)weeks[i].n++});
+  const mx=Math.max(1,...weeks.map(w=>w.n));
+  $("stWeeks").innerHTML='<div class="cols">'+weeks.map(w=>'<div class="c" title="Неделя с '+fmt(dstr(w.s))+': '+w.n+'"><span class="v">'+(w.n||"")+'</span><span class="bar2" style="height:'+(w.n/mx*100)+'%"></span><span class="lb">'+fmt(dstr(w.s)).slice(0,5)+'</span></div>').join("")+'</div>';
+  // ближайшие сроки
+  const next=rows.filter(isOpen).filter(r=>r.deadline_date).sort((a,b)=>a.deadline_date.localeCompare(b.deadline_date)).slice(0,7);
+  $("stNext").innerHTML=next.length?'<div class="nl">'+next.map(r=>{
+    const d=dnum(r.deadline_date)-today,c=d<0?"l":d<=3?"s":"n",t=d<0?"−"+(-d)+" дн.":d===0?"сегодня":d+" дн.";
+    return'<button data-go="'+esc(r.incoming_no)+'"><b>'+esc(r.incoming_no)+'</b><span class="t">'+esc(r.supplier)+'</span><span class="dl '+c+'">'+t+'</span></button>'}).join("")+'</div>'
+    :'<div class="muted">Открытых заявок нет 🎉</div>';
+  document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{$("q").value=b.dataset.go;$("fDue").value="";filterSt="";setTab("req");render()});
+  // нагрузка
+  if(isMgr){
+    const by={};
+    rows.forEach(r=>{const o=by[r.owner_id]||(by[r.owner_id]={open:0,red:0,soon:0,done:0,all:0});o.all++;if(isOpen(r)){o.open++;const s=rowState(r);if(s==="red")o.red++;else if(s==="amber")o.soon++}else if(r.status==="done")o.done++});
+    const list=Object.entries(by).sort((a,b)=>b[1].open-a[1].open||b[1].all-a[1].all);
+    const m=Math.max(1,...list.map(([,o])=>o.open));
+    $("stLoad").innerHTML=list.length?list.map(([id,o])=>{const nm=names[id]||"—";
+      return'<div class="hb"><span class="nm" title="'+esc(nm)+'">'+avatar(nm)+esc(nm)+'</span><span class="tr" title="Открыто: '+o.open+', истёк крайний срок: '+o.red+', рек. срок истекает: '+o.soon+'">'+
+        '<span style="width:'+(o.red/m*100)+'%;background:var(--bad)"></span><span style="width:'+(o.soon/m*100)+'%;background:var(--warn)"></span><span style="width:'+((o.open-o.red-o.soon)/m*100)+'%;background:var(--acc)"></span></span>'+
+        '<b title="открытых / всего">'+o.open+'<span class="muted" style="font-weight:400">/'+o.all+'</span></b></div>'}).join("")
+      :'<div class="muted">Пока нет данных</div>';
+  }
+}
+
+/* ---------- импорт ---------- */
+function parseCSV(text,delim){
+  const out=[];let row=[],f="",q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"'&&f==="")q=true;
+    else if(c===delim){row.push(f);f=""}
+    else if(c==="\n"||c==="\r"){if(c==="\r"&&text[i+1]==="\n")i++;row.push(f);out.push(row);row=[];f=""}
+    else f+=c;
+  }
+  if(f!==""||row.length){row.push(f);out.push(row)}
+  return out.filter(r=>r.some(x=>x.trim()!==""));
+}
+function detectDelim(text){
+  const l=text.split(/\r?\n/)[0]||"",n=ch=>l.split(ch).length-1;
+  if(n("\t"))return"\t";return n(";")>=n(",")?";":",";
+}
+const FIELDS=[["incoming_no",h=>/№|номер|письм/.test(h)&&!/срок/.test(h)],["received_date",h=>/поступ|дата/.test(h)&&!/срок/.test(h)],["req_type",h=>/тип/.test(h)],
+  ["supplier",h=>/постав/.test(h)],["summary",h=>/суть|содерж|описан/.test(h)],["goods",h=>/товар/.test(h)],["owner",h=>/исполн|ответств/.test(h)],["status",h=>/статус/.test(h)]];
+function parseDate(s){
+  s=String(s||"").trim();let m;
+  if((m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/)))return mk(+m[1],+m[2],+m[3]);
+  if((m=s.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{2,4})$/))){let y=+m[3];if(y<100)y+=2000;return mk(y,+m[2],+m[1])}
+  if(/^\d{5}$/.test(s)){return dstr(+s-25569)} // число-дата Excel
+  return null;
+  function mk(y,mo,d){const t=new Date(Date.UTC(y,mo-1,d));return t.getUTCFullYear()===y&&t.getUTCMonth()===mo-1&&t.getUTCDate()===d?y+"-"+pad(mo)+"-"+pad(d):null}
+}
+function parseType(s){const h=norm(s);if(!h)return"";if(/пул|pool/.test(h))return"pool";if(/проект|project/.test(h))return"project";return null}
+function parseStatus(s){const h=norm(s);if(!h)return"new";for(const [k,v] of STATUSES)if(h===k||h===norm(v))return k;
+  if(/работ/.test(h))return"work";if(/доп|запрош/.test(h))return"info";if(/соглас/.test(h))return"appr";if(/исполн|выполн|закрыт/.test(h))return"done";if(/отклон|отказ/.test(h))return"rej";if(/нов/.test(h))return"new";return null}
+function matchOwner(s){
+  const h=norm(s);if(!h)return{id:null};
+  const list=assignable();
+  let f=list.filter(p=>norm(p.login)===h||norm(p.full_name)===h);
+  if(f.length===1)return{id:f[0].id};
+  const w=h.split(" ");
+  f=list.filter(p=>{const pw=norm(p.full_name).split(" ");return pw[0]===w[0]&&(w.length<2||(pw[1]||"").startsWith(w[1].replace(/\./g,"")))});
+  if(f.length===1)return{id:f[0].id};
+  return{err:f.length?"исполнитель неоднозначен":"исполнитель не найден"};
+}
+let impRows=[];
+function impParse(text){
+  impRows=[];
+  text=String(text||"").replace(/^﻿/,"");
+  if(!text.trim()){$("impBody").innerHTML="";msg("impSum","Выберите файл или вставьте строки.","info");$("impGo").disabled=true;return}
+  const data=parseCSV(text,detectDelim(text));
+  const head=(data[0]||[]).map(norm),map={};
+  FIELDS.forEach(([k,test])=>{const i=head.findIndex((h,j)=>test(h)&&!Object.values(map).includes(j));if(i>=0)map[k]=i});
+  if(map.incoming_no==null||map.supplier==null){$("impBody").innerHTML="";msg("impSum","Не найдены заголовки. Первая строка должна содержать названия колонок: № письма, Дата поступления, Тип, Поставщик, Краткая суть, Товары, Исполнитель, Статус.");$("impGo").disabled=true;return}
+  const existing=new Set(rows.map(r=>r.incoming_no)),seen=new Set();
+  const defOwner=$("impOwner").value,defType=$("impType").value;
+  data.slice(1).forEach((c,i)=>{
+    const g=k=>map[k]!=null?String(c[map[k]]??"").trim():"";
+    const e=[],v={incoming_no:g("incoming_no"),supplier:g("supplier"),summary:g("summary"),goods:g("goods")||null};
+    if(!v.incoming_no)e.push("нет № письма");else if(existing.has(v.incoming_no))e.push("№ уже есть в реестре");else if(seen.has(v.incoming_no))e.push("№ повторяется в файле");
+    seen.add(v.incoming_no);
+    const ds=g("received_date");v.received_date=ds?parseDate(ds):null;if(!v.received_date)e.push(ds?"неверная дата":"нет даты");
+    const t=parseType(g("req_type"));v.req_type=t||defType;if(t===null)e.push("неизвестный тип");else if(!v.req_type)e.push("нет типа");
+    if(!v.supplier)e.push("нет поставщика");if(!v.summary)e.push("нет краткой сути");
+    const o=matchOwner(g("owner"));v.owner_id=o.id||(o.err?null:defOwner);if(o.err)e.push(o.err);else if(!v.owner_id)e.push("нет исполнителя");
+    const s=parseStatus(g("status"));v.status=s||"new";if(s===null)e.push("неизвестный статус");
+    impRows.push({n:i+2,v,e,done:false});
+  });
+  impRender();
+}
+function impRender(){
+  const ok=impRows.filter(r=>!r.e.length&&!r.done).length,bad=impRows.filter(r=>r.e.length).length,done=impRows.filter(r=>r.done).length;
+  $("impBody").innerHTML=impRows.map(r=>'<tr><td>'+r.n+'</td><td>'+esc(r.v.incoming_no)+'</td><td class="nw">'+fmt(r.v.received_date)+'</td><td>'+esc(TN[r.v.req_type]||"")+'</td><td>'+esc(r.v.supplier)+
+    '</td><td>'+esc(String(r.v.summary).slice(0,80))+'</td><td>'+esc(names[r.v.owner_id]||"")+'</td><td>'+esc(SN[r.v.status])+'</td><td class="'+(r.e.length?"errc":"okc")+'">'+
+    (r.done?"✓ загружено":r.e.length?esc(r.e.join("; ")):"✓ готово")+'</td></tr>').join("");
+  msg("impSum","Строк: "+impRows.length+". Готово к загрузке: "+ok+(bad?". С ошибками (будут пропущены): "+bad:"")+(done?". Загружено: "+done:""),bad?"err":"info");
+  $("impGo").disabled=!ok;$("impGo").textContent=ok?"Загрузить "+ok:"Загрузить";
+}
+$("impBtn").onclick=()=>{
+  fillOwnerSelect($("impOwner"),assignable().some(p=>p.id===lastOwner)?lastOwner:"","— не задан (ошибка) —");
+  $("impFile").value="";$("impText").value="";impParse("");$("impDlg").showModal();
+};
+$("impClose").onclick=()=>$("impDlg").close();
+$("impFile").onchange=async()=>{
+  const f=$("impFile").files[0];if(!f)return;
+  const buf=await f.arrayBuffer();let text;
+  try{text=new TextDecoder("utf-8",{fatal:true}).decode(buf)}catch(e){text=new TextDecoder("windows-1251").decode(buf)}
+  $("impText").value="";impParse(text);
+};
+let impT=null;
+$("impText").oninput=()=>{clearTimeout(impT);impT=setTimeout(()=>{$("impFile").value="";impParse($("impText").value)},300)};
+const reparse=async()=>{const f=$("impFile").files[0];if(f)$("impFile").onchange();else impParse($("impText").value)};
+$("impOwner").onchange=reparse;$("impType").onchange=reparse;
+$("tplBtn").onclick=()=>{
+  const ex=assignable()[0];
+  download("shablon_zayavok.csv",[["№ письма","Дата поступления","Тип","Поставщик","Краткая суть","Товары","Исполнитель","Статус"],
+    ["ВХ-001",fmt(kzDay(0)),"В пул","ТОО «Пример»","Краткое описание заявки","Товар 1, товар 2",ex?ex.full_name:"Иванов Иван","Новая"]].map(r=>r.map(cell).join(";")).join("\r\n"));
+};
+$("impGo").onclick=async()=>{
+  const todo=impRows.filter(r=>!r.e.length&&!r.done);if(!todo.length)return;
+  $("impGo").disabled=true;$("impClose").disabled=true;
+  for(let i=0;i<todo.length;i+=50){
+    const part=todo.slice(i,i+50);
+    msg("impSum","Загружаю… "+Math.min(i+50,todo.length)+" из "+todo.length,"info");
+    const {error}=await sb.from("requests").insert(part.map(r=>r.v));
+    if(!error){part.forEach(r=>r.done=true);continue}
+    for(const r of part){const {error:e1}=await sb.from("requests").insert(r.v);if(e1)r.e.push(dbErr(e1));else r.done=true}
+  }
+  $("impClose").disabled=false;
+  const n=todo.filter(r=>r.done).length;
+  impRender();toast("Импортировано заявок: "+n,n<todo.length);
+  await load();
 };
 
 /* ---------- администрирование ---------- */
 let users=[];
 async function loadUsers(){
-  if(!profile||profile.role!=="admin")return;
+  if(!isAdm)return;
   const {data,error}=await sb.rpc("admin_list_users");
   if(error){msg("admMsg","Не удалось загрузить пользователей: "+error.message);return}
   users=data||[];renderUsers();
@@ -525,7 +975,7 @@ function renderUsers(){
   $("admBadge").textContent=pend;show("admBadge",pend>0);
   $("ubody").innerHTML=users.map((u,i)=>'<tr class="'+(u.role==="pending"?"pend":"")+'">'+
     '<td><input class="nm" data-i="'+i+'" value="'+esc(u.full_name)+'" maxlength="200" aria-label="ФИО"></td>'+
-    '<td>'+esc(u.email)+(u.id===user.id?' <span class="tag">это вы</span>':'')+'</td>'+
+    '<td>'+esc(u.email)+(u.id===user.id?' <span class="pill">это вы</span>':'')+'</td>'+
     '<td><select class="rl" data-i="'+i+'" aria-label="Роль">'+ROLES.map(([k,v])=>'<option value="'+k+'"'+(u.role===k?" selected":"")+'>'+v+'</option>').join("")+'</select></td>'+
     '<td class="nw">'+fmt(u.created_at)+'</td>'+
     '<td class="nw"><button class="btn" data-save="'+i+'">Сохранить</button><div class="msg" id="um'+i+'"></div></td></tr>').join("");
@@ -541,8 +991,8 @@ async function saveUser(i,btn){
   btn.disabled=false;
   if(error){msg("um"+i,error.message);return}
   if(role===u.role&&name===u.full_name){msg("um"+i,"Нет изменений.","info");return}
-  await loadUsers();
-  const j=users.findIndex(x=>x.id===u.id);if(j>=0)msg("um"+j,"Сохранено.","ok");
+  toast("Сохранено: "+name);
+  await loadUsers();await loadProfiles();
   if(u.id===user.id){const me=user;user=null;enter(me)}
 }
 
