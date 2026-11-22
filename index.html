@@ -76,6 +76,13 @@ svg.i{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .tabs{max-width:1500px;margin:0 auto;display:flex;gap:2px;padding:0 20px;overflow-x:auto}
 .tabs button{display:inline-flex;align-items:center;gap:6px;background:none;border:0;border-bottom:2px solid transparent;padding:9px 12px;color:var(--mute);white-space:nowrap;font-weight:500}
 .tabs button.on{border-color:var(--acc);color:var(--ink)}
+.tabs .sp{flex:1;min-width:12px}
+.tseg{display:flex;gap:3px;align-self:center;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:3px;margin:4px 0;flex:none}
+.tabs .tseg button{border:0;border-radius:8px;padding:5px 12px;color:var(--mute);font-weight:500}
+.tabs .tseg button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow);font-weight:600}
+.tseg b{display:inline-block;min-width:20px;margin-left:4px;padding:0 6px;border-radius:999px;background:var(--accsoft);color:var(--acc);font-size:11px}
+.tseg button[data-type="pool"].on b{background:var(--acc);color:var(--onacc)}
+.tseg button[data-type="project"].on b{background:var(--vio);color:var(--onacc)}
 .badge{display:inline-block;min-width:18px;padding:0 5px;border-radius:999px;background:var(--bad);color:#fff;font-size:11px;text-align:center;font-weight:700}
 .wrap{max-width:1500px;margin:0 auto;padding:16px 20px 32px}
 
@@ -274,6 +281,12 @@ dialog::backdrop{background:rgba(10,14,25,.5);backdrop-filter:blur(2px)}
       <button type="button" data-tab="req" class="on"><svg class="i" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Заявки</button>
       <button type="button" data-tab="stats"><svg class="i" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Аналитика</button>
       <button type="button" data-tab="adm" class="hidden" id="admTabBtn"><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M19 8v6M16 11h6"/></svg>Администрирование<span class="badge hidden" id="admBadge"></span></button>
+      <span class="sp"></span>
+      <div class="tseg" id="typeSeg" role="group" aria-label="Тип заявок">
+        <button type="button" data-type="">Все<b id="tcAll">0</b></button>
+        <button type="button" data-type="pool">В пул<b id="tcPool">0</b></button>
+        <button type="button" data-type="project">На проект<b id="tcProj">0</b></button>
+      </div>
     </nav>
   </div>
 
@@ -282,7 +295,6 @@ dialog::backdrop{background:rgba(10,14,25,.5);backdrop-filter:blur(2px)}
     <div class="kpis" id="kpis"></div>
     <div class="toolbar">
       <div class="search"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="search" id="q" placeholder="Поиск: № письма, поставщик, суть, товары   ( / )"></div>
-      <select id="fType" aria-label="Тип"><option value="">Все типы</option><option value="pool">В пул</option><option value="project">На проект</option></select>
       <select id="fWho" class="hidden" aria-label="Исполнитель"><option value="">Все исполнители</option></select>
       <select id="fDue" aria-label="Сроки">
         <option value="">Все сроки</option><option value="open">Открытые</option><option value="late">Просроченные</option>
@@ -626,7 +638,7 @@ function fillOwnerSelect(sel,value,placeholder){
 
 function setTab(t){
   tab=t;document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));
-  show("tabReq",t==="req");show("tabStats",t==="stats");show("tabAdm",t==="adm");
+  show("tabReq",t==="req");show("tabStats",t==="stats");show("tabAdm",t==="adm");show("typeSeg",t!=="adm");
   show("csvBtn",isMgr);show("impBtn",isMgr);
   if(t==="adm")loadUsers();
   if(t==="stats")renderStats();
@@ -670,8 +682,8 @@ function dueOk(r,f){
   }
 }
 function visible(ignoreStatus){
-  const q=norm($("q").value),ty=$("fType").value,w=$("fWho").value,due=$("fDue").value;
-  return rows.filter(r=>(ignoreStatus||!filterSt||r.status===filterSt)&&(!ty||r.req_type===ty)&&(!w||r.owner_id===w)&&dueOk(r,due)&&
+  const q=norm($("q").value),w=$("fWho").value,due=$("fDue").value;
+  return TR().filter(r=>(ignoreStatus||!filterSt||r.status===filterSt)&&(!w||r.owner_id===w)&&dueOk(r,due)&&
     (!q||norm([r.incoming_no,r.supplier,r.summary,r.goods].join(" ")).includes(q)));
 }
 const ST_ORDER=Object.fromEntries(STATUSES.map(([k],i)=>[k,i]));
@@ -691,7 +703,20 @@ const canEdit=r=>r.owner_id===user.id||isMgr;
 const canStatus=r=>r.owner_id===user.id;
 const canDel=r=>r.owner_id===user.id||isAdm;
 
+/* ---------- разделение по типу ---------- */
+let curType=lsGet("reestr-type")||"";if(!["","pool","project"].includes(curType))curType="";
+const TR=()=>curType?rows.filter(r=>r.req_type===curType):rows;
+function renderTypeSeg(){
+  document.querySelectorAll("#typeSeg button").forEach(b=>b.classList.toggle("on",b.dataset.type===curType));
+  const p=rows.filter(r=>r.req_type==="pool").length;
+  $("tcAll").textContent=rows.length;$("tcPool").textContent=p;$("tcProj").textContent=rows.length-p;
+}
+document.querySelectorAll("#typeSeg button").forEach(b=>b.onclick=()=>{
+  curType=b.dataset.type;lsSet("reestr-type",curType);filterSt="";render();if(tab==="stats")renderStats();
+});
+
 function renderKpis(){
+  const rows=TR();
   const open=rows.filter(isOpen),red=rows.filter(r=>rowState(r)==="red"),soon=rows.filter(r=>rowState(r)==="amber");
   const week=rows.filter(r=>r.received_date>=kzDay(-6));
   const t30=Date.now()-30*864e5,done30=rows.filter(r=>r.status==="done"&&new Date(r.updated_at).getTime()>=t30);
@@ -711,7 +736,7 @@ function renderKpis(){
   });
 }
 function render(){
-  renderKpis();
+  renderTypeSeg();renderKpis();
   const base=visible(true),cnt={};base.forEach(r=>cnt[r.status]=(cnt[r.status]||0)+1);
   $("chips").innerHTML='<button class="chip'+(filterSt?"":" on")+'" data-s="">Все<b>'+base.length+'</b></button>'+
     STATUSES.map(([k,v])=>'<button class="chip'+(filterSt===k?" on":"")+'" data-s="'+k+'"><span class="dot" style="--c:'+SC[k]+'"></span>'+v+'<b>'+(cnt[k]||0)+'</b></button>').join("");
@@ -722,7 +747,7 @@ function render(){
   });
   const list=sortRows(visible(false));
   show("empty",list.length===0);
-  $("empty").textContent=rows.length?"По выбранным фильтрам заявок нет":"Заявок пока нет. Нажмите «Новая заявка».";
+  $("empty").textContent=TR().length?"По выбранным фильтрам заявок нет":curType?"Заявок типа «"+TN[curType]+"» пока нет":"Заявок пока нет. Нажмите «Новая заявка».";
   $("tbody").innerHTML=list.map(r=>{
     const st=canStatus(r)?'<select class="stSel" data-id="'+esc(r.id)+'" aria-label="Статус">'+STATUSES.map(([k,v])=>'<option value="'+k+'"'+(r.status===k?" selected":"")+'>'+v+'</option>').join("")+'</select>'
       :'<span class="st" style="--c:'+SC[r.status]+'"><span class="dot"></span>'+esc(SN[r.status])+'</span>';
@@ -738,10 +763,10 @@ function render(){
   document.querySelectorAll(".stSel").forEach(s=>s.onchange=()=>setStatus(s.dataset.id,s.value));
   document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openDlg(b.dataset.edit));
   document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>askDel(b.dataset.del));
-  $("note").textContent="Показано: "+list.length+" из "+rows.length+". Жёлтым выделены заявки, у которых рекомендуемый срок истёк или истекает завтра, красным — с истёкшим крайним сроком (кроме исполненных и отклонённых). Нажмите на заголовок колонки для сортировки.";
+  $("note").textContent="Показано: "+list.length+" из "+TR().length+(curType?" (тип «"+TN[curType]+"»)":"")+". Жёлтым выделены заявки, у которых рекомендуемый срок истёк или истекает завтра, красным — с истёкшим крайним сроком (кроме исполненных и отклонённых). Нажмите на заголовок колонки для сортировки.";
 }
-["q","fType","fWho","fDue"].forEach(id=>$(id).addEventListener(id==="q"?"input":"change",render));
-$("fReset").onclick=()=>{$("q").value="";$("fType").value="";$("fWho").value="";$("fDue").value="";filterSt="";render()};
+["q","fWho","fDue"].forEach(id=>$(id).addEventListener(id==="q"?"input":"change",render));
+$("fReset").onclick=()=>{$("q").value="";$("fWho").value="";$("fDue").value="";filterSt="";render()};
 document.addEventListener("keydown",e=>{
   if(e.key==="/"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)&&!document.querySelector("dialog[open]")&&tab==="req"&&!$("app").classList.contains("hidden")){e.preventDefault();$("q").focus()}
 });
@@ -779,7 +804,7 @@ function openDlg(id){
   const own=!id||r.owner_id===user.id;
   $("dlgTitle").textContent=id?"Заявка № "+r.incoming_no:"Новая заявка";
   $("eNo").value=r.incoming_no||"";$("eDate").value=r.received_date||kzDay(0);
-  $("eKind").value=r.req_type||"pool";$("eStat").value=r.status||"new";
+  $("eKind").value=r.req_type||curType||"pool";$("eStat").value=r.status||"new";
   $("eSup").value=r.supplier||"";$("eSum").value=r.summary||"";$("eGoods").value=r.goods||"";
   show("eOwnerRow",isMgr);
   if(isMgr)fillOwnerSelect($("eOwner"),id?r.owner_id:(assignable().some(p=>p.id===lastOwner)?lastOwner:""),"— выберите исполнителя —");
@@ -828,12 +853,12 @@ $("csvBtn").onclick=()=>{
   const head=["№ письма","Поступила","Рек. срок","Крайний срок","Тип","Поставщик","Краткая суть","Товары","Исполнитель","Статус"];
   const lines=[head.map(cell).join(";")].concat(sortRows(visible(false)).map(r=>[r.incoming_no,fmt(r.received_date),fmt(r.recommended_date),fmt(r.deadline_date),
     TN[r.req_type],r.supplier,r.summary,r.goods,names[r.owner_id],SN[r.status]].map(cell).join(";")));
-  download("zayavki_"+kzDay(0)+".csv",lines.join("\r\n"));
+  download("zayavki_"+(curType==="pool"?"v_pul_":curType==="project"?"na_proekt_":"")+kzDay(0)+".csv",lines.join("\r\n"));
 };
 
 /* ---------- аналитика ---------- */
 function renderStats(){
-  const total=rows.length;
+  const rows=TR(),total=rows.length;
   // статусы
   const cnt={};rows.forEach(r=>cnt[r.status]=(cnt[r.status]||0)+1);
   $("stStatusSub").textContent="всего "+total;
@@ -952,7 +977,7 @@ function impRender(){
 }
 $("impBtn").onclick=()=>{
   fillOwnerSelect($("impOwner"),assignable().some(p=>p.id===lastOwner)?lastOwner:"","— не задан (ошибка) —");
-  $("impFile").value="";$("impText").value="";impParse("");$("impDlg").showModal();
+  $("impType").value=curType;$("impFile").value="";$("impText").value="";impParse("");$("impDlg").showModal();
 };
 $("impClose").onclick=()=>$("impDlg").close();
 $("impFile").onchange=async()=>{
